@@ -1,0 +1,119 @@
+{
+	"$schema": "https://raw.githubusercontent.com/martinring/tmlanguage/master/tmlanguage.json",
+	"name": "Palang",
+	"patterns": [
+		{
+			"include": "#keywords"
+		},
+		{
+			"include": "#strings"
+		},
+		{
+			"include": "#comments"
+		},
+		{
+			"include": "#functions"
+		},
+		{
+			"include": "#variables"
+		},
+		{
+			"include": "#prompt-body"
+		},
+		{
+			"include": "#model-body"
+		}
+	],
+	"repository": {
+		"keywords": {
+			"patterns": [
+				{
+					"name": "keyword.control.palang",
+					"match": "\\b(module|model|prompt|function|return|if|for|in|rag)\\b"
+				}
+			]
+		},
+		"strings": {
+			"name": "string.quoted.double.palang",
+			"begin": "\"",
+			"end": "\"",
+			"patterns": [
+				{
+					"name": "constant.character.escape.palang",
+					"match": "\\\\."
+				}
+			]
+		},
+		"comments": {
+			"name": "comment.line.double-slash.palang",
+			"match": "//.*$"
+		},
+		"functions": {
+			"patterns": [
+				{
+					"name": "entity.name.function.palang",
+					"match": "\\b([a-zA-Z_][a-zA-Z0-9_]*)\\s*(?=\\()"
+				}
+			]
+		},
+		"variables": {
+			"patterns": [
+				{
+					"name": "variable.other.palang",
+					"match": "\\b([a-zA-Z_][a-zA-Z0-9_]*)\\b"
+				}
+			]
+		},
+		"prompt-body": {
+			"name": "meta.prompt-body.palang",
+			"begin": "(?<=\\bprompt\\s+\\w*\\s*\\(.*?\\)\\s*->\\s*.*?\\s*\\{)",
+			"beginCaptures": {
+				"0": {
+					"name": "punctuation.definition.prompt-body.begin.palang"
+				}
+			},
+			"end": "(\\})",
+			"endCaptures": {
+				"1": {
+					"name": "punctuation.definition.prompt-body.end.palang"
+				}
+			},
+			"patterns": [
+				{
+					"name": "variable.other.placeholder.palang",
+					"match": "@\\{[^}]+\\}"
+				},
+				{
+					"name": "string.unquoted.prompt-content.palang",
+					"match": "[^@\\{]+"
+				}
+			]
+		},
+		"model-body": {
+			"name": "meta.model-body.palang",
+			"begin": "(?<=\\bmodel\\s+\\w*\\s*\\{)",
+			"beginCaptures": {
+				"0": {
+					"name": "punctuation.definition.model-body.begin.palang"
+				}
+			},
+			"end": "(\\})",
+			"endCaptures": {
+				"1": {
+					"name": "punctuation.definition.model-body.end.palang"
+				}
+			},
+			"patterns": [
+				{
+					"name": "variable.other.placeholder.palang",
+					"match": "@\\{[^}]+\\}"
+				},
+				{
+					"name": "string.unquoted.model-content.palang",
+					"match": "[^@\\{]+"
+				}
+			]
+		}
+	},
+	"scopeName": "source.palang"
+}
