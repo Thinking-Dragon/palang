@@ -1,0 +1,25 @@
+{
+  "name": "palang",
+  "displayName": "Palang",
+  "description": "The Palang programming language empowers developers to bootstrap LLM projects quickly and efficiently and to share LLM logic between projects.",
+  "version": "0.0.1",
+  "engines": {
+    "vscode": "^1.92.0"
+  },
+  "categories": [
+    "Programming Languages"
+  ],
+  "contributes": {
+    "languages": [{
+      "id": "palang",
+      "aliases": ["Palang", "palang"],
+      "extensions": [".palang",".plg"],
+      "configuration": "./language-configuration.json"
+    }],
+    "grammars": [{
+      "language": "palang",
+      "scopeName": "source.palang",
+      "path": "./syntaxes/palang.tmLanguage.json"
+    }]
+  }
+}
