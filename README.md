@@ -1,4 +1,4 @@
-# Palang - Bootstrap your LLM projects in no time
+# 🎨 Palang - Bootstrap your LLM projects in no time
 
 ## What is Palang
 Palang is a programming language that allows you to define large language model (LLM) workflows easily and to reuse them in multiple applications.
