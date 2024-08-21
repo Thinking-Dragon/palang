@@ -18,7 +18,7 @@ struct Args {
 fn main() {
     let args = Args::parse();
     let source_code = fs::read_to_string(args.source_file)
-            .expect("The file source file does not exist.");
+            .expect("The source file does not exist.");
     let tokens = tokenize(&source_code);
     for token in tokens {
         println!("{:?}", token);
