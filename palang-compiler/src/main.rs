@@ -1,9 +1,11 @@
 use std::fs;
 
 use clap::Parser;
-use tokenize::tokenizer::tokenize;
+use parse::{parser::parse, ast_node::ASTNode};
+use tokenize::{tokenizer::tokenize, tokens::Token};
 
 pub mod tokenize;
+pub mod parse;
 
 #[derive(Parser, Debug)]
 #[command(version, about, long_about = None)]
@@ -16,11 +18,14 @@ struct Args {
 }
 
 fn main() {
-    let args = Args::parse();
-    let source_code = fs::read_to_string(args.source_file)
-            .expect("The source file does not exist.");
-    let tokens = tokenize(&source_code);
-    for token in tokens {
-        println!("{:?}", token);
-    }
+    let args: Args = Args::parse();
+    let source_code: String = fs::read_to_string(args.source_file)
+            .expect("The file source file does not exist.");
+    let tokens: Vec<Token> = tokenize(&source_code);
+    println!("{:?}", tokens);
+
+    println!("---");
+
+    let ast: Result<ASTNode, String> = parse(tokens);
+    println!("{:?}", ast);
 }

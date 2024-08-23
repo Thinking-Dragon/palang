@@ -89,11 +89,11 @@ pub fn tokenize<'a>(input: &'a str) -> Vec<Token> {
             }
             '(' => {
                 chars.next();
-                tokens.push(Token::OpenParen);
+                tokens.push(Token::OpenParenthesis);
             }
             ')' => {
                 chars.next();
-                tokens.push(Token::CloseParen);
+                tokens.push(Token::CloseParenthesis);
             }
             ',' => {
                 chars.next();
@@ -155,14 +155,15 @@ fn tokenize_identifier<'a>(chars: &mut Peekable<Chars<'a>>) -> Token {
         }
     }
     match identifier.as_str() {
-        "module" => Token::Module,
-        "model"  => Token::Model,
-        "prompt" => Token::Prompt,
-        "func"   => Token::Func,
-        "for"    => Token::For,
-        "in"     => Token::In,
-        "&&"     => Token::And,
-        "||"     => Token::Or,
+        "module"   => Token::Module,
+        "model"    => Token::Model,
+        "prompt"   => Token::Prompt,
+        "function" => Token::Function,
+        "return"   => Token::Return,
+        "for"      => Token::For,
+        "in"       => Token::In,
+        "&&"       => Token::And,
+        "||"       => Token::Or,
         _ => Token::Identifier(identifier),
     }
 }
