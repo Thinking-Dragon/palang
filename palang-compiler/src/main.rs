@@ -1,13 +1,16 @@
 use std::fs;
 
-use analyze::semantic_analyzer::analyze_semantics;
 use clap::Parser;
-use parse::{ast_node::ASTNode, parser::parse};
+
 use tokenize::{tokenizer::tokenize, tokens::Token};
+use parse::{ast_node::ASTNode, parser::parse};
+use analyze::semantic_analyzer::analyze_semantics;
+use generate::code_generator::generate_palassembly;
 
 pub mod tokenize;
 pub mod parse;
 pub mod analyze;
+pub mod generate;
 
 #[derive(Parser, Debug)]
 #[command(version, about, long_about = None)]
@@ -50,6 +53,28 @@ fn main() {
         Err(e) => {
             println!(" ❌\n\t{}", e);
             return;
+        },
+    }
+
+    print!("4. Generating Palang assembly code.");
+    let generated_code = generate_palassembly(&ast.unwrap());
+    match generated_code {
+        Ok(_) => {
+            println!(" ✅");
+        },
+        Err(e) => {
+            println!(" ❌\n\t{}", e);
+            return;
+        },
+    }
+
+    print!("5. Writing Palang assembly code to: \"{}\"", args.target_file);
+    match fs::write(args.target_file, generated_code.unwrap()) {
+        Ok(_) => {
+            println!(" ✅\n");
+        },
+        Err(e) => {
+            println!(" ❌\n\t{}", e);
         },
     }
 }

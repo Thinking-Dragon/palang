@@ -65,7 +65,7 @@ pub fn tokenize<'a>(input: &'a str) -> Vec<Token> {
                         chars.next();
                     }
 
-                    tokens.push(Token::StringLiteral(text.trim().to_string()));
+                    tokens.push(Token::StringLiteral(text.to_string()));
                     chars.next();
 
                     braces_are_text = false;
