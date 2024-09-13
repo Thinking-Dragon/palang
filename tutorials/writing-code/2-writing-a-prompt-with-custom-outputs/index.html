@@ -933,7 +933,7 @@
 
 <h1 id="writing-a-prompt-with-custom-outputs">Writing a prompt with custom outputs</h1>
 <p>This tutorial assumes you have already installed the Palang CLI and you are familiar with <em>compiling</em> and <em>running</em> Palang programs.</p>
-<p>If you are not familiar with these concepts, follow the <a href="/tutorials/writing-code/1-hello-world">Hello world!</a> tutorial first.</p>
+<p>If you are not familiar with these concepts, follow the <a href="/palang/tutorials/writing-code/1-hello-world">Hello world!</a> tutorial first.</p>
 <p>In this tutorial, you will define custom <em>models</em>. You will then use these <em>models</em> as input and output types for a prompt.</p>
 <h2 id="simple-prompt-to-get-travel-ideas">Simple prompt to get travel ideas</h2>
 <p>Let's start with a simple example, say you have the following prompt:
@@ -947,7 +947,7 @@
 </span><span id="__span-0-4"><a id="__codelineno-0-4" name="__codelineno-0-4"></a>    <span class="nv">Find</span> <span class="nv">ten</span> <span class="nv">cool</span> <span class="nv">travel</span> <span class="nv">ideas</span> <span class="k">for</span> <span class="nv">a</span> <span class="nv">first</span> <span class="nv">trip</span> <span class="nv">to</span> <span class="nv">Japan</span><span class="err">.</span>
 </span><span id="__span-0-5"><a id="__codelineno-0-5" name="__codelineno-0-5"></a><span class="p">}</span>
 </span></code></pre></div></td></tr></table></div></p>
-<p>This prompt is very similar to the one we wrote in <a href="/tutorials/writing-code/1-hello-world">Hello world!</a>.</p>
+<p>This prompt is very similar to the one we wrote in <a href="/palang/tutorials/writing-code/1-hello-world">Hello world!</a>.</p>
 <p>Here is an output you could get from this prompt:
 <div class="language-bash highlight"><span class="filename">Bash command</span><pre><span></span><code><span id="__span-1-1"><a id="__codelineno-1-1" name="__codelineno-1-1" href="#__codelineno-1-1"></a>palang<span class="w"> </span>run<span class="w"> </span>travel.palasm<span class="w"> </span>--task<span class="w"> </span>tutorials/findtravelideas<span class="w"> </span>--profile<span class="w"> </span>groq_llama3_70b
 </span></code></pre></div>
@@ -1005,7 +1005,7 @@
 <p>What if I want to call your prompt, but this time I want the output to be <code>yaml</code>? I need to write a copy of your prompt and modify the output format instructions.</p>
 <h2 id="defining-your-output-in-a-model-good-example">Defining your output in a model (good example)</h2>
 <p>Introducing Palang <em>models</em>. They descibe the format of data and they can be used as <em>input</em> and <em>output</em> types for <em>prompts</em> (and later <em>functions</em>).</p>
-<p>The <code>std::Text</code> return type we have been using in <a href="/tutorials/writing-code/1-hello-world">Hello world!</a> and this in tutorial is a <code>model</code> defined in the Palang standard code repository.</p>
+<p>The <code>std::Text</code> return type we have been using in <a href="/palang/tutorials/writing-code/1-hello-world">Hello world!</a> and this in tutorial is a <code>model</code> defined in the Palang standard code repository.</p>
 <p>Let's turn our response format instructions into a <code>model</code>:
 <div class="language-palang highlight"><table class="highlighttable"><tr><th colspan="2" class="filename"><span class="filename">travel.palang</span></th></tr><tr><td class="linenos"><div class="linenodiv"><pre><span></span><span class="normal"><a href="#__codelineno-6-1">1</a></span>
 <span class="normal"><a href="#__codelineno-6-2">2</a></span>
@@ -1137,7 +1137,7 @@
 </span><span id="__span-14-12"><a id="__codelineno-14-12" name="__codelineno-14-12" href="#__codelineno-14-12"></a><span class="p">]</span>
 </span></code></pre></div></p>
 <h2 id="next-tutorial">Next tutorial</h2>
-<p>Awesome! Now that you learned about formatting your <em>output</em>, you are ready to learn about <a href="/tutorials/writing-code/3-writing-a-prompt-with-custom-inputs">Writing a prompt with custom inputs</a>.</p>
+<p>Awesome! Now that you learned about formatting your <em>output</em>, you are ready to learn about <a href="/palang/tutorials/writing-code/3-writing-a-prompt-with-custom-inputs">Writing a prompt with custom inputs</a>.</p>
 
 
 
