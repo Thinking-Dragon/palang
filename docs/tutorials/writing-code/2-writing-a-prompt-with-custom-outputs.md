@@ -2,7 +2,7 @@
 
 This tutorial assumes you have already installed the Palang CLI and you are familiar with *compiling* and *running* Palang programs.
 
-If you are not familiar with these concepts, follow the [Hello world!](/tutorials/writing-code/1-hello-world) tutorial first.
+If you are not familiar with these concepts, follow the [Hello world!](/palang/tutorials/writing-code/1-hello-world) tutorial first.
 
 In this tutorial, you will define custom *models*. You will then use these *models* as input and output types for a prompt.
 
@@ -16,7 +16,7 @@ prompt findTravelIdeas() -> std::Text {
 }
 ```
 
-This prompt is very similar to the one we wrote in [Hello world!](/tutorials/writing-code/1-hello-world).
+This prompt is very similar to the one we wrote in [Hello world!](/palang/tutorials/writing-code/1-hello-world).
 
 Here is an output you could get from this prompt:
 ```bash title="Bash command"
@@ -86,7 +86,7 @@ What if I want to call your prompt, but this time I want the output to be `yaml`
 ## Defining your output in a model (good example)
 Introducing Palang *models*. They descibe the format of data and they can be used as *input* and *output* types for *prompts* (and later *functions*).
 
-The `std::Text` return type we have been using in [Hello world!](/tutorials/writing-code/1-hello-world) and this in tutorial is a `model` defined in the Palang standard code repository.
+The `std::Text` return type we have been using in [Hello world!](/palang/tutorials/writing-code/1-hello-world) and this in tutorial is a `model` defined in the Palang standard code repository.
 
 Let's turn our response format instructions into a `model`:
 ```palang title="travel.palang" linenums="1"
@@ -206,4 +206,4 @@ palang run travel.palasm --task tutorials/findtravelideas --output tutorials/jso
 ```
 
 ## Next tutorial
-Awesome! Now that you learned about formatting your *output*, you are ready to learn about [Writing a prompt with custom inputs](/tutorials/writing-code/3-writing-a-prompt-with-custom-inputs).
+Awesome! Now that you learned about formatting your *output*, you are ready to learn about [Writing a prompt with custom inputs](/palang/tutorials/writing-code/3-writing-a-prompt-with-custom-inputs).

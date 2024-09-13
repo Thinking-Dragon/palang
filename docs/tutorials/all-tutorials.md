@@ -15,10 +15,10 @@ The tutorials are separated in these two categories because the experience will 
 ## You want to write Palang code?
 Get introduced to every feature of the Palang programming language incrementally with a series of tutorials.
 
-&nbsp;&nbsp;1. [Hello world!](/tutorials/writing-code/1-hello-world)<br>
-&nbsp;&nbsp;2. [Writing a prompt with custom inputs and outputs](/tutorials/writing-code/2-writing-a-prompt-with-custom-outputs)<br>
+&nbsp;&nbsp;1. [Hello world!](/palang/tutorials/writing-code/1-hello-world)<br>
+&nbsp;&nbsp;2. [Writing a prompt with custom inputs and outputs](/palang/tutorials/writing-code/2-writing-a-prompt-with-custom-outputs)<br>
 
 ## You want to deploy Palang code?
 Learn all the tricks and features of the Palang stand-alone server. With these tutorials, we focuse more on interacting with Palang applications rather than writing them.
 
-&nbsp;&nbsp;1. [Hello world!](/tutorials/deploying-code/hello-world)<br>
+&nbsp;&nbsp;1. [Hello world!](/palang/tutorials/deploying-code/hello-world)<br>

@@ -79,4 +79,4 @@ Hello world!
 ```
 
 ## Next tutorial
-Now that you have written and ran your first Palang program, you are ready to learn about [Writing a prompt with custom inputs and outputs](/tutorials/writing-code/2-writing-a-prompt-with-custom-outputs).
+Now that you have written and ran your first Palang program, you are ready to learn about [Writing a prompt with custom inputs and outputs](/palang/tutorials/writing-code/2-writing-a-prompt-with-custom-outputs).

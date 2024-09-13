@@ -10,10 +10,10 @@ The Palang interpretor is provided both as a standalone executable and as a serv
 ## Documentation
 | Section                                         | Description                                            |
 |-------------------------------------------------|--------------------------------------------------------|
-| [Tutorials](docs/tutorials/all-tutorials.md)         | Learn Palang with step-by-step tutorials.              |
-| [How-to guides](docs/how-to-guides/all-guides.md) | Find how to acheive your goals with how-to guides.     |
-| [Explanations](docs/explanations/all-explanations.md)     | Understand Palang concepts with detailed explanations. |
-| [References](docs/references/all-references.md)         | Easily access facts about Palang with references.      |
+| [Tutorials](https://thinking-dragon.github.io/palang/tutorials/all-tutorials/)         | Learn Palang with step-by-step tutorials.              |
+| [How-to guides](https://thinking-dragon.github.io/palang/how-to-guides/all-guides/) | Find how to acheive your goals with how-to guides.     |
+| [Explanations](https://thinking-dragon.github.io/palang/explanations/all-explanations/)     | Understand Palang concepts with detailed explanations. |
+| [References](https://thinking-dragon.github.io/palang/references/all-references/)         | Easily access facts about Palang with references.      |
 
 ## How to contribute
 Contributions are welcome. This project is in its early infancy ; if you are interested in this project and you would like to contribute or to get more information, you have two options for the time being:
