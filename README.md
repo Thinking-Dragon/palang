@@ -10,10 +10,10 @@ The Palang interpretor is provided both as a standalone executable and as a serv
 ## Documentation
 | Section                                         | Description                                            |
 |-------------------------------------------------|--------------------------------------------------------|
-| [Tutorials](documentation/tutorials.md)         | Learn Palang with step-by-step tutorials.              |
-| [How-to guides](documentation/how-to-guides.md) | Find how to acheive your goals with how-to guides.     |
-| [Explanation](documentation/explanation.md)     | Understand Palang concepts with detailed explanations. |
-| [Reference](documentation/reference.md)         | Easily access facts about Palang with references.      |
+| [Tutorials](docs/tutorials/all-tutorials.md)         | Learn Palang with step-by-step tutorials.              |
+| [How-to guides](docs/how-to-guides/all-guides.md) | Find how to acheive your goals with how-to guides.     |
+| [Explanations](docs/explanations/all-explanations.md)     | Understand Palang concepts with detailed explanations. |
+| [References](docs/references/all-references.md)         | Easily access facts about Palang with references.      |
 
 ## How to contribute
 Contributions are welcome. This project is in its early infancy ; if you are interested in this project and you would like to contribute or to get more information, you have two options for the time being:
