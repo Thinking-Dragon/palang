@@ -1,11 +1,13 @@
 pub mod profile;
+pub mod dialog_utils;
 
 use std::{env, fs, path::{Path, PathBuf}};
 
 use clap::{Parser, Subcommand};
+use dialog_utils::ask;
 use palang_compiler::{compile_file, compile_package};
 use palang_virtual_machine::{boot_machine, choose_llm, load_assembly_file, virtualization::virtual_machine::VirtualMachine};
-use profile::load_profile_from_directory;
+use profile::{import_profile, load_profile_from_directory, Profile};
 use tokio::runtime::Runtime;
 
 #[derive(Debug, Parser)]
@@ -18,6 +20,7 @@ struct Cli {
 enum Command {
     Compile(CompileArgs),
     Run(RunArgs),
+    New(NewArgs),
 }
 
 #[derive(Debug, Parser)]
@@ -50,6 +53,12 @@ struct RunArgs {
     profiles_directory: Option<PathBuf>,
 }
 
+#[derive(Debug, Parser)]
+struct NewArgs {
+    #[arg(value_name = "What to create? [profile]")]
+    thing: String,
+}
+
 #[derive(Parser, Debug)]
 #[command(version, about, long_about = None)]
 struct Args {
@@ -68,6 +77,9 @@ fn main() {
         Command::Run(args) => {
             run_command(&args);
         },
+        Command::New(args) => {
+            new_command(&args);
+        }
     }
 }
 
@@ -164,4 +176,44 @@ fn run_command(args: &RunArgs) {
         },
         Err(e) => println!("{}", e),
     }
+}
+
+fn new_command(args: &NewArgs) {
+    match args.thing.as_str() {
+        "profile" => {
+            if let Err(e) = new_profile_command() {
+                println!("{}", e);
+            }
+        },
+        _ => {
+            println!("{} is unknown for command new", args.thing);
+        }
+    }
+}
+
+fn new_profile_command() -> Result<(), String> {
+    let name:            String = ask("Name your new profile")?;
+    let llm:             String = ask("Which LLM provider to use")?;
+    let model:           String = ask("Which model you want to use")?;
+    let mut temperature: String = ask("Temperature [0.7]")?;
+    let mut max_tokens:  String = ask("Maximum number of tokens [1024]")?;
+
+    if temperature.is_empty() {
+        temperature = "0.7".to_string();
+    }
+    let temperature_float: f32 = temperature.parse::<f32>().map_err(|e| e.to_string())?;
+
+    if max_tokens.is_empty() {
+        max_tokens = "1024".to_string();
+    }
+    let max_tokens_int: u32 = max_tokens.parse::<u32>().map_err(|e| e.to_string())?;
+
+    let profile: Profile = Profile::new(
+        llm,
+        model,
+        temperature_float,
+        max_tokens_int,
+    );
+
+    import_profile(name, &profile)
 }
