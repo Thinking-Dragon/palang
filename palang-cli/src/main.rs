@@ -6,7 +6,7 @@ use std::{env, fs, path::{Path, PathBuf}};
 use clap::{Parser, Subcommand};
 use dialog_utils::ask;
 use palang_compiler::{compile_file, compile_package};
-use palang_virtual_machine::{boot_machine, choose_llm, load_assembly_file, virtualization::virtual_machine::VirtualMachine};
+use palang_virtual_machine::{assembly::{assembly::Assembly, loader::load_assembly}, boot_machine, choose_llm, load_assembly_file, virtualization::virtual_machine::VirtualMachine};
 use profile::{import_profile, load_profile_from_directory, Profile};
 use tokio::runtime::Runtime;
 
@@ -138,7 +138,7 @@ fn run_command(args: &RunArgs) {
         Ok(profile) => {
             match choose_llm(&profile.llm) {
                 Ok(llm) => {
-                    match load_assembly_file(&args.assembly_file) {
+                    match get_assembly(&args.assembly_file) {
                         Ok(asm) => {
                             let mut vm: VirtualMachine = boot_machine(&llm);
                             vm.load_assembly(&asm);
@@ -216,4 +216,18 @@ fn new_profile_command() -> Result<(), String> {
     );
 
     import_profile(name, &profile)
+}
+
+fn get_assembly(file_path: &PathBuf) -> Result<Assembly, String> {
+    let extension = file_path.extension().and_then(|ext| ext.to_str()).unwrap_or("");
+
+    match extension {
+        "palasm" => load_assembly_file(file_path),
+        "palang" => {
+            let source_code: String = fs::read_to_string(file_path).map_err(|e| e.to_string())?;
+            let assembly_code: String = compile_file(&source_code)?;
+            load_assembly(&assembly_code)
+        },
+        _ => Err(format!("Unsupported file extension: {}", extension)),
+    }
 }
