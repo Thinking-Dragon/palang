@@ -1,0 +1,22 @@
+name: palang
+version: git
+summary: CLI for the Palang programming language
+description: |
+  Palang is a programming language that allows you to define large language model (LLM) workflows easily and to reuse them in multiple applications.
+
+  The name Palang is short for Palette Language. The Palang programming language is an interpreted language, it runs on the Palang interpretor.
+
+  The Palang interpretor is provided both as a standalone executable and as a server called the open-prompt-palette server.
+
+base: core22
+confinement: devmode
+
+parts:
+  palang:
+    plugin: rust
+    source: .
+    rust-path: ["palang-cli"]
+
+apps:
+  palang:
+    command: bin/palang
