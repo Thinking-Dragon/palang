@@ -1,13 +1,16 @@
-pub mod profile;
-pub mod dialog_utils;
+mod profile;
+mod dialog_utils;
+mod server_proxy;
 
 use std::{env, fs, path::{Path, PathBuf}};
 
 use clap::{Parser, Subcommand};
 use dialog_utils::ask;
 use palang_compiler::{compile_file, compile_package};
+use palang_server::{server::ServerArgs, start_server};
 use palang_virtual_machine::{assembly::{assembly::Assembly, loader::load_assembly}, boot_machine, choose_llm, load_assembly_file, virtualization::virtual_machine::VirtualMachine};
-use profile::{import_profile, load_profile_from_directory, Profile};
+use profile::{import_profile, load_profile, load_profile_from_directory, Profile};
+use server_proxy::{models::project::Project, ServerProxy};
 use tokio::runtime::Runtime;
 
 #[derive(Debug, Parser)]
@@ -20,7 +23,10 @@ struct Cli {
 enum Command {
     Compile(CompileArgs),
     Run(RunArgs),
-    New(NewArgs),
+    Serve(ServeArgs),
+    Status,
+    Projects(ProjectsArgs),
+    Profiles(ProfilesArgs),
 }
 
 #[derive(Debug, Parser)]
@@ -54,9 +60,70 @@ struct RunArgs {
 }
 
 #[derive(Debug, Parser)]
-struct NewArgs {
-    #[arg(value_name = "What to create? [profile]")]
-    thing: String,
+struct ServeArgs {
+    #[arg(short, long)]
+    host: Option<String>,
+
+    #[arg(short, long)]
+    port: Option<u16>,
+}
+
+#[derive(Debug, Parser)]
+struct ProjectsArgs {
+    #[command(subcommand)]
+    command: ProjectsCommand,
+}
+
+#[derive(Debug, Subcommand)]
+enum ProjectsCommand {
+    New { name: String },
+    Assemblies(AssembliesArgs),
+}
+
+#[derive(Debug, Parser)]
+struct AssembliesArgs {
+    project: String,
+
+    #[command(subcommand)]
+    command: AssembliesSubcommand,
+}
+
+#[derive(Debug, Parser)]
+enum AssembliesSubcommand {
+    New {
+        assembly: String,
+
+        #[arg(long)]
+        path: String,
+    }
+}
+
+#[derive(Debug, Parser)]
+struct ProfilesArgs {
+    #[command(subcommand)]
+    command: ProfilesCommand,
+}
+
+#[derive(Debug, Subcommand)]
+enum ProfilesCommand {
+    New(NewProfileArgs),
+    NewAlias(NewAliasArgs),
+}
+
+#[derive(Debug, Parser)]
+struct NewProfileArgs {
+    name: String,
+
+    #[arg(long)]
+    from: Option<PathBuf>,
+}
+
+#[derive(Debug, Parser)]
+struct NewAliasArgs {
+    name: String,
+
+    #[arg(long)]
+    r#for: String,
 }
 
 #[derive(Parser, Debug)]
@@ -70,43 +137,53 @@ struct Args {
 }
 
 fn main() {
-    match Cli::parse().command {
-        Command::Compile(args) => {
-            compile_command(&args);
-        },
-        Command::Run(args) => {
-            run_command(&args);
-        },
-        Command::New(args) => {
-            new_command(&args);
-        }
+    if let Err(e) = execute_command() {
+        eprintln!("{}", e);
     }
 }
 
-fn compile_command(args: &CompileArgs) {
+fn execute_command() -> Result<(), String> {
+    match Cli::parse().command {
+        Command::Compile(args) => {
+            compile_command(&args)
+        },
+        Command::Run(args) => {
+            run_command(&args)
+        },
+        Command::Serve(args) => {
+            serve_command(&args)
+        },
+        Command::Status => {
+            status_command()
+        },
+        Command::Projects(args) => {
+            projects_command(&args)
+        },
+        Command::Profiles(args) => {
+            profiles_command(&args)
+        },
+    }
+}
+
+fn compile_command(args: &CompileArgs) -> Result<(), String> {
     if let Some(target) = &args.target {
         if let Some(source) = &args.source {
-            if let Err(e) = compile_file_to_target(&source, &target) {
-                println!("{}", e);
-            }
+            return compile_file_to_target(&source, &target);
         }
         else if let Some(package) = &args.package {
-            if let Err(e) = compile_package_to_target(&package, &target) {
-                println!("Failed to compile package {:?} ({})", package, e);
-            }
+            return compile_package_to_target(&package, &target);
         }
         else {
-            match env::current_dir() {
-                Ok(package) => {
-                    if let Err(e) = compile_package_to_target(&package, &target) {
-                        println!("{}", e);
-                    }
-                },
-                Err(e) => {
-                    println!("{}", e);
-                },
+            if let Ok(package) = env::current_dir().map_err(|e| e.to_string()) {
+                return compile_package_to_target(&package, &target);
+            }
+            else {
+                return Err("Working directory not found, please specify a source or package directory".to_string());
             }
         }
+    }
+    else {
+        return Err("No compilation target specified".to_string());
     }
 }
 
@@ -130,7 +207,7 @@ fn compile_package_to_target(package_root: &Path, target_path: &Path) -> Result<
     Ok(())
 }
 
-fn run_command(args: &RunArgs) {
+fn run_command(args: &RunArgs) -> Result<(), String> {
     match load_profile_from_directory(
         &args.profile,
         &args.profiles_directory,
@@ -154,45 +231,109 @@ fn run_command(args: &RunArgs) {
                             match result {
                                 Ok(output) => {
                                     println!("{}", output);
+                                    Ok(())
                                 },
                                 Err(e) => {
-                                    println!("Could not execute program ({})", e);
+                                    return Err(format!("Could not execute program ({})", e));
                                 },
                             }
                         },
                         Err(e) => {
-                            println!(
-                                "Could not find assembly file {:?} ({})",
-                                args.assembly_file,
-                                e
+                            return Err(
+                                format!(
+                                    "Could not find assembly file {:?} ({})",
+                                    args.assembly_file,
+                                    e
+                                )
                             );
                         }
                     }
                 },
                 Err(e) => {
-                    println!("Specified large language model \"{}\" not found ({})", profile.llm, e);
+                    return Err(format!("Specified large language model \"{}\" not found ({})", profile.llm, e));
                 },
             }
         },
-        Err(e) => println!("{}", e),
+        Err(e) => Err(format!("{}", e)),
     }
 }
 
-fn new_command(args: &NewArgs) {
-    match args.thing.as_str() {
-        "profile" => {
-            if let Err(e) = new_profile_command() {
-                println!("{}", e);
+fn serve_command(args: &ServeArgs) -> Result<(), String> {
+    let host: String = match args.host.clone() {
+        Some(host) => host,
+        None => "127.0.0.1".to_string(),
+    };
+
+    let port = match args.port {
+        Some(port) => port,
+        None => 8242,
+    };
+
+    start_server(&ServerArgs::new(host, port)).map_err(|e| e.to_string())
+}
+
+fn status_command() -> Result<(), String> {
+    let proxy: ServerProxy = get_server_proxy()?;
+    let status = proxy.get_status()?;
+
+    println!("{}", status.to_string());
+    Ok(())
+}
+
+fn projects_command(args: &ProjectsArgs) -> Result<(), String> {
+    match &args.command {
+        ProjectsCommand::New { name } => {
+            new_project_command(&name)
+        },
+        ProjectsCommand::Assemblies(assemblies_args) => {
+            match &assemblies_args.command {
+                AssembliesSubcommand::New { assembly, path } => {
+                    new_assembly_command(&assemblies_args.project, &assembly, &path)
+                }
             }
         },
-        _ => {
-            println!("{} is unknown for command new", args.thing);
-        }
     }
 }
 
-fn new_profile_command() -> Result<(), String> {
-    let name:            String = ask("Name your new profile")?;
+fn new_project_command(name: &String) -> Result<(), String> {
+    let mut proxy: ServerProxy = get_server_proxy()?;
+    
+    proxy.add_project(&Project::new());
+
+    Ok(())
+}
+
+fn new_assembly_command(project: &String, assembly: &String, path: &String) -> Result<(), String> {
+    let mut proxy: ServerProxy = get_server_proxy()?;
+
+    proxy.add_assembly(&crate::server_proxy::models::assembly::Assembly::new());
+
+    Ok(())
+}
+
+fn profiles_command(args: &ProfilesArgs) -> Result<(), String> {
+    match &args.command {
+        ProfilesCommand::New(new_args) => {
+            new_profile_command(&new_args.name, &new_args.from)
+        },
+        ProfilesCommand::NewAlias(alias_args) => {
+            new_profile_alias_command(&alias_args.name, &alias_args.r#for)
+        },
+    }
+}
+
+fn new_profile_command(name: &String, from: &Option<PathBuf>) -> Result<(), String> {
+    if let Some(from) = from {
+        let profile: Profile = load_profile(from)?;
+        import_profile(name, &profile)
+    }
+    else {
+        new_profile_dialog(name)
+    }
+    // TODO: move to server if connected
+}
+
+fn new_profile_dialog(name: &String) -> Result<(), String> {
     let llm:             String = ask("Which LLM provider to use")?;
     let model:           String = ask("Which model you want to use")?;
     let mut temperature: String = ask("Temperature [0.7]")?;
@@ -216,6 +357,15 @@ fn new_profile_command() -> Result<(), String> {
     );
 
     import_profile(name, &profile)
+    // TODO: move to server if connected
+}
+
+fn new_profile_alias_command(name: &String, r#for: &String) -> Result<(), String> {
+    let mut proxy: ServerProxy = get_server_proxy()?;
+    
+    proxy.add_profile_alias(name, r#for);
+    
+    Ok(())
 }
 
 fn get_assembly(file_path: &PathBuf) -> Result<Assembly, String> {
@@ -230,4 +380,8 @@ fn get_assembly(file_path: &PathBuf) -> Result<Assembly, String> {
         },
         _ => Err(format!("Unsupported file extension: {}", extension)),
     }
+}
+
+fn get_server_proxy() -> Result<ServerProxy, String> {
+    Ok(ServerProxy::from(&"127.0.0.1".to_string(), &8242))
 }

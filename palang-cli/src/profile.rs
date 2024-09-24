@@ -63,7 +63,7 @@ pub fn load_profile_from_directory(name: &String, directory: &Option<PathBuf>) -
     load_profile(&file_path)
 }
 
-pub fn import_profile(name: String, profile: &Profile) -> Result<(), String> {
+pub fn import_profile(name: &String, profile: &Profile) -> Result<(), String> {
     let file_name_with_extension = format!("{}.yaml", name);
 
     let base_directory = (if let Ok(snap_user_data) = env::var("SNAP_USER_DATA") {
