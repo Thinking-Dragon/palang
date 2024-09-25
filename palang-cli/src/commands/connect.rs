@@ -4,10 +4,10 @@ use crate::server_proxy::ServerProxy;
 
 #[derive(Debug, Parser)]
 pub struct ConnectArgs {
-    #[arg(short, long)]
+    #[arg(long)]
     host: String,
 
-    #[arg(short, long)]
+    #[arg(long)]
     port: u16,
 }
 

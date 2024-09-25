@@ -3,10 +3,10 @@ use palang_server::{server::ServerArgs, start_server};
 
 #[derive(Debug, Parser)]
 pub struct ServeArgs {
-    #[arg(short, long)]
+    #[arg(long)]
     host: Option<String>,
 
-    #[arg(short, long)]
+    #[arg(long)]
     port: Option<u16>,
 }
 
