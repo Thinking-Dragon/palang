@@ -41,13 +41,28 @@ struct Cli {
 
 #[derive(Debug, Subcommand)]
 enum Command {
+    #[command(about = "Compile a source file")]
     Compile(CompileArgs),
+
+    #[command(about = "Run a compiled program")]
     Run(RunArgs),
+
+    #[command(about = "Start a Palang server")]
     Serve(ServeArgs),
+
+    #[command(about = "Connect to a Palang server")]
     Connect(ConnectArgs),
+
+    #[command(about = "Disconnect from Palang server")]
     Disconnect,
+
+    #[command(about = "Print current status of server")]
     Status,
+
+    #[command(about = "Manage projects")]
     Projects(ProjectsArgs),
+
+    #[command(about = "Manage profiles")]
     Profiles(ProfilesArgs),
 }
 
