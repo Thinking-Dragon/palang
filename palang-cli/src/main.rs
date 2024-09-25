@@ -9,6 +9,11 @@ use commands::{
         compile_command,
         CompileArgs
     },
+    connect::{
+        connect_command,
+        ConnectArgs
+    },
+    disconnect::disconnect_command,
     profiles::{
         profiles_command,
         ProfilesArgs
@@ -39,6 +44,8 @@ enum Command {
     Compile(CompileArgs),
     Run(RunArgs),
     Serve(ServeArgs),
+    Connect(ConnectArgs),
+    Disconnect,
     Status,
     Projects(ProjectsArgs),
     Profiles(ProfilesArgs),
@@ -70,6 +77,12 @@ fn execute_command() -> Result<(), String> {
         },
         Command::Serve(args) => {
             serve_command(&args)
+        },
+        Command::Connect(args) => {
+            connect_command(&args)
+        },
+        Command::Disconnect => {
+            disconnect_command()
         },
         Command::Status => {
             status_command()
