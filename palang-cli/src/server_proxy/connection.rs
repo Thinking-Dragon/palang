@@ -1,7 +1,6 @@
-use std::{env, fs, path::PathBuf, time::Duration};
+use std::{env, fs, io::ErrorKind, net::{SocketAddr, TcpStream}, path::PathBuf, time::Duration};
 
 use serde::{Deserialize, Serialize};
-use tokio::{net::TcpStream, time::timeout};
 
 use super::ServerProxy;
 
@@ -30,12 +29,13 @@ impl ServerProxy {
         }
     }
 
-    pub async fn connect(host: &String, port: &u16) -> Result<(), String> {
-        match timeout(
-            Duration::from_secs(5),
-            TcpStream::connect(format!("{}:{}", host, port))
-        ).await {
-            Ok(Ok(_)) => {
+    pub fn connect(host: &String, port: &u16) -> Result<(), String> {
+        let address: String = format!("{}:{}", host, port);
+        let socket_addr: SocketAddr = address.parse()
+            .map_err(|e| format!("Invalid address: {}", e))?;
+
+        match TcpStream::connect_timeout(&socket_addr, Duration::from_secs(5)) {
+            Ok(_) => {
                 let connection = Connection {
                     host: host.clone(),
                     port: *port,
@@ -53,8 +53,13 @@ impl ServerProxy {
 
                 Ok(())
             },
-            Ok(Err(e)) => Err(format!("Failed to connect: {}", e)),
-            Err(_) => Err("Connection timed out".to_string()),
+            Err(e) => {
+                if e.kind() == ErrorKind::TimedOut {
+                    Err("Connection timed out".to_string())
+                } else {
+                    Err(format!("Failed to connect: {}", e))
+                }
+            }
         }
     }
 
