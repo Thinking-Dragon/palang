@@ -5,8 +5,8 @@ pub mod models;
 pub mod handlers;
 
 pub struct ServerProxy {
-    host: String,
-    port: u16,
+    pub host: String,
+    pub port: u16,
 }
 
 impl ServerProxy {

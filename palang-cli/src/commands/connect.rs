@@ -12,5 +12,18 @@ pub struct ConnectArgs {
 }
 
 pub fn connect_command(args: &ConnectArgs) -> Result<(), String> {
-    ServerProxy::connect(&args.host, &args.port)
+    let was_connected_to_another_server: bool = ServerProxy::is_connected();
+    let previous_server: Option<ServerProxy> = match was_connected_to_another_server {
+        true => Some(ServerProxy::find_server()?),
+        false => None,
+    };
+
+    ServerProxy::connect(&args.host, &args.port)?;
+    if was_connected_to_another_server {
+        let previous_server = previous_server.unwrap();
+        println!("Disconnected from {}:{}", previous_server.host, previous_server.port);
+    }
+    println!("Connected to {}:{}", &args.host, &args.port);
+
+    Ok(())
 }
