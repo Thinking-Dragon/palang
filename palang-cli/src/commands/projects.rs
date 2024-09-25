@@ -1,11 +1,27 @@
-use clap::{Parser, Subcommand};
+use std::fs;
 
-use crate::server_proxy::{models::project::Project, ServerProxy};
+use clap::{Parser, Subcommand};
+use palang_compiler::{compile_file, compile_package};
+use tabled::Table;
+
+use crate::{
+    assembly_path_util::{
+        parse_assembly_path,
+        AssemblyPath
+    },
+    server_proxy::{
+        models::{
+            assembly::Assembly,
+            project::Project
+        },
+        ServerProxy
+    }
+};
 
 #[derive(Debug, Parser)]
 pub struct ProjectsArgs {
     #[command(subcommand)]
-    command: ProjectsCommand,
+    command: Option<ProjectsCommand>,
 }
 
 #[derive(Debug, Subcommand)]
@@ -19,7 +35,7 @@ struct AssembliesArgs {
     project: String,
 
     #[command(subcommand)]
-    command: AssembliesSubcommand,
+    command: Option<AssembliesSubcommand>,
 }
 
 #[derive(Debug, Parser)]
@@ -34,31 +50,73 @@ enum AssembliesSubcommand {
 
 pub fn projects_command(args: &ProjectsArgs) -> Result<(), String> {
     match &args.command {
-        ProjectsCommand::New { name } => {
-            new_project_command(&name)
-        },
-        ProjectsCommand::Assemblies(assemblies_args) => {
-            match &assemblies_args.command {
-                AssembliesSubcommand::New { assembly, path } => {
-                    new_assembly_command(&assemblies_args.project, &assembly, &path)
-                }
+        Some(command) => {
+            match command {
+                ProjectsCommand::New { name } => {
+                    new_project_command(&name)
+                },
+                ProjectsCommand::Assemblies(assemblies_args) => {
+                    match &assemblies_args.command {
+                        Some(command) => {
+                            match command {
+                                AssembliesSubcommand::New { assembly, path } => {
+                                    new_assembly_command(&assemblies_args.project, &assembly, &path)
+                                },
+                            }
+                        },
+                        None => {
+                            let assemblies: Vec<Assembly> = ServerProxy::find_server()?
+                                .get_assemblies(&assemblies_args.project)?;
+                            println!("Assemblies:\n{}", Table::new(assemblies).to_string());
+                            Ok(())
+                        },
+                    }
+                },
             }
+        },
+        None => {
+            let projects: Vec<Project> = ServerProxy::find_server()?.get_projects()?;
+            println!("Projects:\n{}", Table::new(projects).to_string());
+            Ok(())
         },
     }
 }
 
 fn new_project_command(name: &String) -> Result<(), String> {
-    let mut proxy: ServerProxy = ServerProxy::find_server()?;
-    
-    proxy.add_project(&Project::new());
-
-    Ok(())
+    ServerProxy::find_server()?.add_project(&Project::new(name.clone()))
 }
 
-fn new_assembly_command(project: &String, assembly: &String, path: &String) -> Result<(), String> {
-    let mut proxy: ServerProxy = ServerProxy::find_server()?;
+fn new_assembly_command(
+    project: &String,
+    assembly: &String,
+    path: &String
+) -> Result<(), String> {
+    let assembly: Assembly = match parse_assembly_path(path)? {
+        AssemblyPath::RemoteAssembly(path) => {
+            Assembly::new_remote(project.clone(), assembly.clone(), path)
+        },
+        AssemblyPath::LocalAssembly(path) => {
+            let code = match path.extension().and_then(|ext| ext.to_str()) {
+                Some(extension) => {
+                    match extension {
+                        "palasm" => {
+                            fs::read_to_string(path).map_err(|e| e.to_string())
+                        },
+                        "palang" => {
+                            let source_code: String = fs::read_to_string(path).map_err(|e| e.to_string())?;
+                            compile_file(&source_code)
+                        },
+                        _ => Err(format!("Unsupported file extension: {}", extension)),
+                    }
+                },
+                None => {
+                    compile_package(&path)
+                },
+            }?;
 
-    proxy.add_assembly(&crate::server_proxy::models::assembly::Assembly::new());
+            Assembly::new_local(project.clone(), assembly.clone(), code)
+        },
+    };
 
-    Ok(())
+    ServerProxy::find_server()?.add_assembly(project, &assembly)
 }

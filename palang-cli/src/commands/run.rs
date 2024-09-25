@@ -5,7 +5,7 @@ use palang_compiler::compile_file;
 use palang_virtual_machine::{assembly::{assembly::Assembly, loader::load_assembly}, boot_machine, choose_llm, load_assembly_file, virtualization::virtual_machine::VirtualMachine};
 use tokio::runtime::Runtime;
 
-use crate::profile::load_profile_from_directory;
+use crate::server_proxy::models::profile::load_profile_from_directory;
 
 #[derive(Debug, Parser)]
 pub struct RunArgs {

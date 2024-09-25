@@ -1,13 +1,25 @@
 use std::path::PathBuf;
 
 use clap::{Parser, Subcommand};
+use tabled::Table;
 
-use crate::{dialog_utils::ask, profile::{import_profile, load_profile, Profile}, server_proxy::ServerProxy};
+use crate::{
+    dialog_utils::ask,
+    server_proxy::{
+        models::profile::{
+            import_profile,
+            load_profile,
+            Profile,
+            ProfileAlias
+        },
+        ServerProxy
+    }
+};
 
 #[derive(Debug, Parser)]
 pub struct ProfilesArgs {
     #[command(subcommand)]
-    command: ProfilesCommand,
+    command: Option<ProfilesCommand>,
 }
 
 #[derive(Debug, Subcommand)]
@@ -34,11 +46,20 @@ struct NewAliasArgs {
 
 pub fn profiles_command(args: &ProfilesArgs) -> Result<(), String> {
     match &args.command {
-        ProfilesCommand::New(new_args) => {
-            new_profile_command(&new_args.name, &new_args.from)
+        Some(command) => {
+            match command {
+                ProfilesCommand::New(new_args) => {
+                    new_profile_command(&new_args.name, &new_args.from)
+                },
+                ProfilesCommand::NewAlias(alias_args) => {
+                    new_profile_alias_command(&alias_args.name, &alias_args.r#for)
+                },
+            }
         },
-        ProfilesCommand::NewAlias(alias_args) => {
-            new_profile_alias_command(&alias_args.name, &alias_args.r#for)
+        None => {
+            let profiles: Vec<Profile> = ServerProxy::find_server()?.get_profiles()?;
+            println!("Profiles:\n{}", Table::new(profiles).to_string());
+            Ok(())
         },
     }
 }
@@ -46,12 +67,17 @@ pub fn profiles_command(args: &ProfilesArgs) -> Result<(), String> {
 fn new_profile_command(name: &String, from: &Option<PathBuf>) -> Result<(), String> {
     if let Some(from) = from {
         let profile: Profile = load_profile(from)?;
-        import_profile(name, &profile)
+
+        if ServerProxy::is_connected() {
+            ServerProxy::find_server()?.add_profile(&profile)
+        }
+        else {
+            import_profile(name, &profile)
+        }
     }
     else {
         new_profile_dialog(name)
     }
-    // TODO: move to server if connected
 }
 
 fn new_profile_dialog(name: &String) -> Result<(), String> {
@@ -77,14 +103,15 @@ fn new_profile_dialog(name: &String) -> Result<(), String> {
         max_tokens_int,
     );
 
-    import_profile(name, &profile)
-    // TODO: move to server if connected
+    if ServerProxy::is_connected() {
+        ServerProxy::find_server()?.add_profile(&profile)
+    }
+    else {
+        import_profile(name, &profile)
+    }
 }
 
 fn new_profile_alias_command(name: &String, r#for: &String) -> Result<(), String> {
-    let mut proxy: ServerProxy = ServerProxy::find_server()?;
-    
-    proxy.add_profile_alias(name, r#for);
-    
-    Ok(())
+    ServerProxy::find_server()?
+        .add_profile_alias(&ProfileAlias::new(name.clone(), r#for.clone()))
 }

@@ -1,5 +1,5 @@
-mod profile;
 mod dialog_utils;
+mod assembly_path_util;
 mod commands;
 mod server_proxy;
 

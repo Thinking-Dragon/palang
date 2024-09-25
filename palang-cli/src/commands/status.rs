@@ -1,9 +1,8 @@
 use crate::server_proxy::ServerProxy;
 
 pub fn status_command() -> Result<(), String> {
-    let proxy: ServerProxy = ServerProxy::find_server()?;
-    let status = proxy.get_status()?;
+    let status = ServerProxy::find_server()?.get_status()?;
+    println!("{}", status.to_pretty_format());
 
-    println!("{}", status.to_string());
     Ok(())
 }
