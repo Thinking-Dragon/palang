@@ -2,8 +2,9 @@ use std::{env, fs, path::PathBuf};
 
 use palang_virtual_machine::llm::model_settings::ModelSettings;
 use serde::{Deserialize, Serialize};
+use tabled::Tabled;
 
-#[derive(Debug, Serialize, Deserialize)]
+#[derive(Debug, Serialize, Deserialize, Tabled)]
 pub struct Profile {
     pub llm: String,
     pub model: String,
@@ -63,7 +64,7 @@ pub fn load_profile_from_directory(name: &String, directory: &Option<PathBuf>) -
     load_profile(&file_path)
 }
 
-pub fn import_profile(name: String, profile: &Profile) -> Result<(), String> {
+pub fn import_profile(name: &String, profile: &Profile) -> Result<(), String> {
     let file_name_with_extension = format!("{}.yaml", name);
 
     let base_directory = (if let Ok(snap_user_data) = env::var("SNAP_USER_DATA") {
@@ -76,4 +77,16 @@ pub fn import_profile(name: String, profile: &Profile) -> Result<(), String> {
 
     let file_path = base_directory.join(file_name_with_extension);
     write_profile(&file_path, profile)
+}
+
+#[derive(Deserialize, Serialize)]
+pub struct ProfileAlias {
+    pub name: String,
+    pub r#for: String,
+}
+
+impl ProfileAlias {
+    pub fn new(name: String, r#for: String) -> Self {
+        ProfileAlias { name, r#for }
+    }
 }
