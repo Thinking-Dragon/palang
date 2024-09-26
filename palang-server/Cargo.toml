@@ -1,0 +1,12 @@
+[package]
+name = "palang-server"
+version = "0.1.0"
+edition = "2021"
+
+[dependencies]
+actix-web = "4.9.0"
+clap = { version = "4.5.16", features = ["derive"] }
+serde = { version = "1.0.209", features = ["derive"] }
+
+[dependencies.palang-virtual-machine]
+path = "../palang-virtual-machine"
