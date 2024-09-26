@@ -1,5 +1,5 @@
 use clap::Parser;
-use palang_server::{server::ServerArgs, start_server};
+use palang_server::{api::v1::server::ServerArgs, start_server};
 
 #[derive(Debug, Parser)]
 pub struct ServeArgs {
