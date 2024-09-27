@@ -15,7 +15,7 @@ impl ServerProxy {
     }
 
     fn make_url(&self, route: &str) -> String {
-        format!("{}:{}/{}", self.host, self.port, route)
+        format!("http://{}:{}/api/v1/{}", self.host, self.port, route)
     }
 
     fn get<T>(&self, route: &str) -> Result<T, String>
@@ -23,21 +23,34 @@ impl ServerProxy {
     {
         let url = self.make_url(route);
         reqwest::blocking::get(url)
-            .map_err(|e| e.to_string())?
+            .map_err(|e| format!("{:?}", e))?
             .json()
-            .map_err(|e| e.to_string())
+            .map_err(|e| format!("{:?}", e))
     }
 
     fn post<T, U>(&self, route: &str, body: &T) -> Result<U, String>
-        where T: Serialize, U: DeserializeOwned
+        where T: Serialize + std::fmt::Debug, U: DeserializeOwned
     {
         let url = self.make_url(route);
         reqwest::blocking::Client::new()
             .post(url)
             .json(body)
             .send()
-            .map_err(|e| e.to_string())?
+            .map_err(|e| format!("{:?}", e))?
             .json()
-            .map_err(|e| e.to_string())
+            .map_err(|e| format!("{:?}", e))
+    }
+
+    fn post_only<T>(&self, route: &str, body: &T) -> Result<(), String>
+        where T: Serialize
+    {
+        let url = self.make_url(route);
+        reqwest::blocking::Client::new()
+            .post(url)
+            .json(body)
+            .send()
+            .map_err(|e| format!("{:?}", e))?;
+
+        Ok(())
     }
 }

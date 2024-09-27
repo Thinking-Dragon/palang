@@ -1,19 +1,18 @@
 use std::path::PathBuf;
 
 use clap::{Parser, Subcommand};
-use tabled::Table;
+use palang_server::api::v1::{
+    models::profile::{
+        import_profile,
+        load_profile,
+        Profile,
+        ProfileAlias
+    },
+    services::storage::{name_data, NamedData}
+};
 
 use crate::{
-    dialog_utils::ask,
-    server_proxy::{
-        models::profile::{
-            import_profile,
-            load_profile,
-            Profile,
-            ProfileAlias
-        },
-        ServerProxy
-    }
+    dialog_utils::ask, pretty_prints::profile::pretty_print_profiles, server_proxy::ServerProxy
 };
 
 #[derive(Debug, Parser)]
@@ -57,8 +56,8 @@ pub fn profiles_command(args: &ProfilesArgs) -> Result<(), String> {
             }
         },
         None => {
-            let profiles: Vec<Profile> = ServerProxy::find_server()?.get_profiles()?;
-            println!("Profiles:\n{}", Table::new(profiles).to_string());
+            let profiles: Vec<NamedData<Profile>> = ServerProxy::find_server()?.get_profiles()?;
+            println!("{}", pretty_print_profiles(&profiles));
             Ok(())
         },
     }
@@ -69,7 +68,12 @@ fn new_profile_command(name: &String, from: &Option<PathBuf>) -> Result<(), Stri
         let profile: Profile = load_profile(from)?;
 
         if ServerProxy::is_connected() {
-            ServerProxy::find_server()?.add_profile(&profile)
+            ServerProxy::find_server()?.add_profile(
+                &name_data(
+                    name.clone(),
+                    profile,
+                )
+            )
         }
         else {
             import_profile(name, &profile)
@@ -104,7 +108,12 @@ fn new_profile_dialog(name: &String) -> Result<(), String> {
     );
 
     if ServerProxy::is_connected() {
-        ServerProxy::find_server()?.add_profile(&profile)
+        ServerProxy::find_server()?.add_profile(
+            &name_data(
+                name.clone(),
+                profile,
+            )
+        )
     }
     else {
         import_profile(name, &profile)

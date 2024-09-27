@@ -1,5 +1,7 @@
 mod dialog_utils;
 mod assembly_path_util;
+mod pretty_prints;
+
 mod commands;
 mod server_proxy;
 
