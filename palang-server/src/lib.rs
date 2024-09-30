@@ -30,6 +30,8 @@ pub async fn start_server(args: &ServerArgs) -> std::io::Result<()> {
                     .route("/status", web::get().to(status::get_status))
                     .route("/projects", web::get().to(projects::get_projects))
                     .route("/projects", web::post().to(projects::create_project))
+                    .route("/projects/{project}", web::get().to(projects::get_project))
+                    .route("/projects/{project}/assemblies", web::get().to(assemblies::get_assemblies))
                     .route("/projects/{project}/assemblies", web::post().to(assemblies::create_assembly))
                     .route("/profiles", web::get().to(profiles::get_profiles))
                     .route("/profiles", web::post().to(profiles::create_profile))

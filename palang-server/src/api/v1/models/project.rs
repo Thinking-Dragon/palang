@@ -1,13 +1,14 @@
 use serde::{Deserialize, Serialize};
-use tabled::Tabled;
 
-#[derive(Debug, Serialize, Deserialize, Tabled)]
+use super::assembly::AssemblySource;
+
+#[derive(Debug, Serialize, Deserialize)]
 pub struct Project {
-    pub name: String,
+    pub assemblies: Vec<AssemblySource>,
 }
 
 impl Project {
-    pub fn new(name: String) -> Self {
-        Project { name }
+    pub fn new() -> Self {
+        Project { assemblies: Vec::new() }
     }
 }

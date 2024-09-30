@@ -111,6 +111,8 @@ fn store_file<T>(file_path: &PathBuf, data: &T) -> Result<(), String>
 #[derive(Debug, Serialize, Deserialize)]
 pub struct NamedData<T> {
     pub name: String,
+
+    #[serde(flatten)]
     pub data: T,
 }
 
