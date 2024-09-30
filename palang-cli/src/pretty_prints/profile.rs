@@ -1,5 +1,5 @@
 use palang_server::api::v1::{models::profile::Profile, services::storage::NamedData};
-use tabled::{settings::Style, Table, Tabled};
+use tabled::{settings::{object::Rows, themes::Colorization, Color, Style}, Table, Tabled};
 
 pub fn pretty_print_profiles(
     profiles: &Vec<NamedData<Profile>>,
@@ -16,6 +16,7 @@ pub fn pretty_print_profiles(
                 )
                 .collect::<Vec<PrintableProfile>>()
         ).with(Style::modern_rounded())
+         .with(Colorization::exact([Color::BOLD], Rows::first()))
          .to_string()
     }
 }

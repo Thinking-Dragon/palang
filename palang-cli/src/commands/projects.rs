@@ -2,24 +2,34 @@ use std::fs;
 
 use clap::{Parser, Subcommand};
 use palang_compiler::{compile_file, compile_package};
-use tabled::Table;
+use palang_server::api::v1::{
+    models::{
+        assembly::AssemblySource,
+        project::Project
+    },
+    services::storage::{
+        name_data,
+        NamedData
+    }
+};
 
 use crate::{
     assembly_path_util::{
         parse_assembly_path,
         AssemblyPath
     },
-    server_proxy::{
-        models::{
-            assembly::Assembly,
-            project::Project
-        },
-        ServerProxy
-    }
+    pretty_prints::project::{
+        pretty_print_assemblies,
+        pretty_print_project,
+        pretty_print_projects
+    },
+    server_proxy::ServerProxy
 };
 
 #[derive(Debug, Parser)]
 pub struct ProjectsArgs {
+    project: Option<String>,
+
     #[command(subcommand)]
     command: Option<ProjectsCommand>,
 }
@@ -32,8 +42,6 @@ enum ProjectsCommand {
 
 #[derive(Debug, Parser)]
 struct AssembliesArgs {
-    project: String,
-
     #[command(subcommand)]
     command: Option<AssembliesSubcommand>,
 }
@@ -41,59 +49,68 @@ struct AssembliesArgs {
 #[derive(Debug, Parser)]
 enum AssembliesSubcommand {
     New {
-        assembly: String,
-
-        #[arg(long)]
         path: String,
     }
 }
 
 pub fn projects_command(args: &ProjectsArgs) -> Result<(), String> {
-    match &args.command {
-        Some(command) => {
-            match command {
-                ProjectsCommand::New { name } => {
-                    new_project_command(&name)
-                },
-                ProjectsCommand::Assemblies(assemblies_args) => {
-                    match &assemblies_args.command {
-                        Some(command) => {
-                            match command {
-                                AssembliesSubcommand::New { assembly, path } => {
-                                    new_assembly_command(&assemblies_args.project, &assembly, &path)
-                                },
-                            }
-                        },
-                        None => {
-                            let assemblies: Vec<Assembly> = ServerProxy::find_server()?
-                                .get_assemblies(&assemblies_args.project)?;
-                            println!("Assemblies:\n{}", Table::new(assemblies).to_string());
-                            Ok(())
-                        },
-                    }
-                },
-            }
-        },
-        None => {
-            let projects: Vec<Project> = ServerProxy::find_server()?.get_projects()?;
-            println!("Projects:\n{}", Table::new(projects).to_string());
-            Ok(())
-        },
+    if let Some(project) = &args.project {
+        match &args.command {
+            Some(command) => {
+                match command {
+                    ProjectsCommand::New { name } => {
+                        new_project_command(&name)
+                    },
+                    ProjectsCommand::Assemblies(assemblies_args) => {
+                        match &assemblies_args.command {
+                            Some(command) => {
+                                match command {
+                                    AssembliesSubcommand::New { path } => {
+                                        new_assembly_command(&project, &path)
+                                    },
+                                }
+                            },
+                            None => {
+                                let assemblies: Vec<AssemblySource> = ServerProxy::find_server()?
+                                    .get_assemblies(&project)?;
+                                println!("{}", pretty_print_assemblies(&assemblies));
+                                Ok(())
+                            },
+                        }
+                    },
+                }
+            },
+            None => {
+                let project: NamedData<Project> = ServerProxy::find_server()?.get_project(project)?;
+                println!("{}", pretty_print_project(&project));
+                Ok(())
+            },
+        }
+    }
+    else {
+        let projects: Vec<NamedData<Project>> = ServerProxy::find_server()?.get_projects()?;
+        println!("{}", pretty_print_projects(&projects));
+        Ok(())
     }
 }
 
 fn new_project_command(name: &String) -> Result<(), String> {
-    ServerProxy::find_server()?.add_project(&Project::new(name.clone()))
+    ServerProxy::find_server()?
+        .add_project(
+            &name_data(
+                name.clone(),
+                Project::new()
+            )
+        )
 }
 
 fn new_assembly_command(
     project: &String,
-    assembly: &String,
     path: &String
 ) -> Result<(), String> {
-    let assembly: Assembly = match parse_assembly_path(path)? {
+    let assembly: AssemblySource = match parse_assembly_path(path)? {
         AssemblyPath::RemoteAssembly(path) => {
-            Assembly::new_remote(project.clone(), assembly.clone(), path)
+            AssemblySource::new_remote(path)
         },
         AssemblyPath::LocalAssembly(path) => {
             let code = match path.extension().and_then(|ext| ext.to_str()) {
@@ -114,7 +131,7 @@ fn new_assembly_command(
                 },
             }?;
 
-            Assembly::new_local(project.clone(), assembly.clone(), code)
+            AssemblySource::new_local(code)
         },
     };
 

@@ -1,7 +1,6 @@
 use serde::{de::DeserializeOwned, Serialize};
 
 pub mod connection;
-pub mod models;
 pub mod handlers;
 
 pub struct ServerProxy {
@@ -29,9 +28,10 @@ impl ServerProxy {
     }
 
     fn post<T, U>(&self, route: &str, body: &T) -> Result<U, String>
-        where T: Serialize + std::fmt::Debug, U: DeserializeOwned
+        where T: Serialize, U: DeserializeOwned
     {
-        let url = self.make_url(route);
+        let url: String = self.make_url(route);
+
         reqwest::blocking::Client::new()
             .post(url)
             .json(body)
@@ -44,7 +44,7 @@ impl ServerProxy {
     fn post_only<T>(&self, route: &str, body: &T) -> Result<(), String>
         where T: Serialize
     {
-        let url = self.make_url(route);
+        let url: String = self.make_url(route);
         reqwest::blocking::Client::new()
             .post(url)
             .json(body)
