@@ -1,6 +1,6 @@
 pub mod api;
 
-use actix_web::{web, App, HttpServer};
+use actix_web::{web::{self, Data}, App, HttpServer};
 use api::v1::{
     routes::{
         assemblies,
@@ -17,7 +17,7 @@ use api::v1::{
 
 #[actix_web::main]
 pub async fn start_server(args: &ServerArgs) -> std::io::Result<()> {
-    let state = web::Data::new(AppState::new());
+    let state: Data<AppState> = web::Data::new(AppState::new());
 
     println!("Starting server at http://{}:{}", args.host, args.port);
 

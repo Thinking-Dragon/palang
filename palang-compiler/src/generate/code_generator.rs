@@ -66,7 +66,7 @@ fn generate_module(
 ) -> Result<(), String> {
     if let ASTNode::QualifiedIdentifier(parts) = name {
         ctx.module_fully_qualified_name = parts.clone();
-        ctx.generated_assembly.push_str(&format!("MODULE {}\n", parts.join("/").to_lowercase()));
+        ctx.generated_assembly.push_str(&format!("MODULE {}\n", parts.join("/")));
     } else {
         return Err("Invalid module name".to_string());
     }
@@ -105,7 +105,7 @@ fn generate_prompt(
 ) -> Result<(), String> {
     let full_name = get_full_name(ctx, name);
     let args = parameters.iter()
-                                .map(|(name, _, _)| name.clone().to_lowercase())
+                                .map(|(name, _, _)| name.clone())
                                 .collect::<Vec<_>>()
                                 .join(" ");
     let ret_type = get_type_name(ctx, return_type)?;
@@ -131,7 +131,7 @@ fn generate_function(
     instructions: &[ASTNode]
 ) -> Result<(), String> {
     let full_name = get_full_name(ctx, name);
-    let args = parameters.iter().map(|(name, _, _)| name.clone().to_lowercase())
+    let args = parameters.iter().map(|(name, _, _)| name.clone())
                                         .collect::<Vec<_>>()
                                         .join(" ");
     let ret_type = get_type_name(ctx, return_type)?;
@@ -259,7 +259,7 @@ fn get_full_name(
     }
     full_name.push_str(name);
 
-    full_name.to_lowercase()
+    full_name
 }
 
 fn get_type_name(
@@ -269,10 +269,10 @@ fn get_type_name(
     match type_node {
         ASTNode::QualifiedIdentifier(parts) => {
             if parts.len() == 1 {
-                Ok(get_full_name(ctx, parts.first().unwrap()).to_lowercase())
+                Ok(get_full_name(ctx, parts.first().unwrap()))
             }
             else {
-                Ok(parts.join("/").to_lowercase())
+                Ok(parts.join("/"))
             }
         },
         ASTNode::Identifier(name) => Ok(get_full_name(ctx, name)),

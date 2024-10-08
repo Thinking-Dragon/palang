@@ -16,7 +16,7 @@ pub fn serve_command(args: &ServeArgs) -> Result<(), String> {
         None => "127.0.0.1".to_string(),
     };
 
-    let port = match args.port {
+    let port: u16 = match args.port {
         Some(port) => port,
         None => 8242,
     };
