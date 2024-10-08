@@ -6,4 +6,5 @@ pub mod function;
 pub mod task;
 pub mod assembly;
 pub mod assemblies_cache;
+pub mod dependency_tree;
 pub mod loader;

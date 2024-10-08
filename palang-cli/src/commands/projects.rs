@@ -19,9 +19,7 @@ use crate::{
         AssemblyPath
     },
     pretty_prints::project::{
-        pretty_print_assemblies,
-        pretty_print_project,
-        pretty_print_projects
+        pretty_print_assembly_sources, pretty_print_project, pretty_print_projects
     },
     server_proxy::ServerProxy
 };
@@ -73,7 +71,7 @@ pub fn projects_command(args: &ProjectsArgs) -> Result<(), String> {
                             None => {
                                 let assemblies: Vec<AssemblySource> = ServerProxy::find_server()?
                                     .get_assemblies(&project)?;
-                                println!("{}", pretty_print_assemblies(&assemblies));
+                                println!("{}", pretty_print_assembly_sources(&assemblies)?);
                                 Ok(())
                             },
                         }
@@ -82,7 +80,7 @@ pub fn projects_command(args: &ProjectsArgs) -> Result<(), String> {
             },
             None => {
                 let project: NamedData<Project> = ServerProxy::find_server()?.get_project(project)?;
-                println!("{}", pretty_print_project(&project));
+                println!("{}", pretty_print_project(&project)?);
                 Ok(())
             },
         }
