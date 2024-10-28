@@ -1,9 +1,31 @@
-use palang_server::api::v1::{models::{assembly::AssemblySource, project::Project}, services::storage::NamedData};
-use palang_virtual_machine::assembly::{assembly::Assembly, dependency_tree::AssemblyDependencyNode};
-use tabled::{settings::{object::Rows, themes::Colorization, Color, Style}, Table, Tabled};
+use palang_server::api::v1::{
+    models::{
+        assembly::{
+            AssemblySource,
+            WrappedAssembly
+        },
+        project::WrappedProject
+    },
+    services::storage::NamedData
+};
+use palang_virtual_machine::assembly::{
+    assembly::Assembly,
+    dependency_tree::AssemblyDependencyNode,
+    loader::load_assembly
+};
+use tabled::{
+    settings::{
+        object::Rows,
+        themes::Colorization,
+        Color,
+        Style
+    },
+    Table,
+    Tabled
+};
 
 pub fn pretty_print_projects(
-    projects: &Vec<NamedData<Project>>,
+    projects: &Vec<NamedData<WrappedProject>>,
 ) -> String {
     if projects.is_empty() {
         "No project was found".to_string()
@@ -22,7 +44,7 @@ pub fn pretty_print_projects(
     }
 }
 
-pub fn pretty_print_project(project: &NamedData<Project>) -> Result<String, String> {
+pub fn pretty_print_project(project: &NamedData<WrappedProject>) -> Result<String, String> {
     let mut print: String = String::new();
 
     print += format!("Name: {}\n", project.name).as_str();
@@ -31,11 +53,15 @@ pub fn pretty_print_project(project: &NamedData<Project>) -> Result<String, Stri
     Ok(print)
 }
 
-pub fn pretty_print_assembly_sources(assembly_sources: &Vec<AssemblySource>) -> Result<String, String> {
-    if assembly_sources.is_empty() {
+pub fn pretty_print_assembly_sources(assemblies: &Vec<WrappedAssembly>) -> Result<String, String> {
+    if assemblies.is_empty() {
         Err("No assembly was found".to_string())
     }
     else {
+        let assembly_sources: Vec<AssemblySource> = assemblies.iter()
+        .map(|assembly| assembly.source.clone())
+        .collect();
+
         let mut text: String = String::new();
 
         text += "Sources:\n";
@@ -58,15 +84,15 @@ pub fn pretty_print_assembly_sources(assembly_sources: &Vec<AssemblySource>) -> 
     }
 }
 
-pub fn pretty_print_assemblies(assembly_sources: &Vec<AssemblySource>) -> Result<String, String> {
-    if assembly_sources.is_empty() {
+pub fn pretty_print_assemblies(assemblies: &Vec<WrappedAssembly>) -> Result<String, String> {
+    if assemblies.is_empty() {
         Err("No assembly was found".to_string())
     }
     else {
-        let assemblies: Vec<Assembly> = assembly_sources.iter()
+        let assemblies: Vec<Assembly> = assemblies.iter()
             .filter_map(
-                |source|
-                match source.resolve_assembly() {
+                |assembly|
+                match load_assembly(&assembly.instructions) {
                     Ok(assembly) => Some(assembly),
                     Err(_) => None,
                 }
@@ -86,7 +112,7 @@ struct PrintableProject {
 }
 
 impl PrintableProject {
-    pub fn from_named(named: &NamedData<Project>) -> Self {
+    pub fn from_named(named: &NamedData<WrappedProject>) -> Self {
         PrintableProject {
             name: named.name.clone(),
             nb_assemblies: named.data.assemblies.len(),
@@ -106,7 +132,9 @@ impl PrintableAssemblySource {
             AssemblySource::Path(path) => {
                 let details: String = match assembly_source.resolve_assembly() {
                     Ok(assembly) => {
-                        let dependency_tree: AssemblyDependencyNode = AssemblyDependencyNode::from_assembly(&assembly);
+                        let dependency_tree: AssemblyDependencyNode = AssemblyDependencyNode::from_assembly(
+                            &load_assembly(&assembly.instructions)?
+                        );
                         format!(
                             "Path: {}\n{}",
                             path.clone(),
@@ -123,7 +151,9 @@ impl PrintableAssemblySource {
             AssemblySource::Code(_) => {
                 let details: String = match assembly_source.resolve_assembly() {
                     Ok(assembly) => {
-                        AssemblyDependencyNode::from_assembly(&assembly).to_string()?
+                        AssemblyDependencyNode::from_assembly(
+                            &load_assembly(&assembly.instructions)?
+                        ).to_string()?
                     },
                     Err(e) => {
                         format!("Could not resolve assembly: {}", e)

@@ -1,6 +1,3 @@
-use std::path::PathBuf;
-
-use palang_virtual_machine::{assembly::{assembly::Assembly, loader::load_assembly}, load_assembly_file};
 use serde::{Deserialize, Serialize};
 use tabled::Tabled;
 
@@ -21,14 +18,37 @@ impl AssemblySource {
     }
 }
 
+#[derive(Debug, Serialize, Deserialize)]
+pub struct Assembly {
+    pub instructions: String,
+}
+
+#[derive(Debug, Clone, Serialize, Deserialize)]
+pub struct WrappedAssembly {
+    #[serde(flatten)]
+    pub source: AssemblySource,
+    pub instructions: String,
+}
+
+impl WrappedAssembly {
+    pub fn new(source: AssemblySource, instructions: String) -> Self {
+        WrappedAssembly { source, instructions }
+    }
+}
+
 impl AssemblySource {
-    pub fn resolve_assembly(&self) -> Result<Assembly, String> {
+    pub fn resolve_assembly(&self) -> Result<WrappedAssembly, String> {
         match self {
             AssemblySource::Path(path) => {
-                load_assembly_file(&PathBuf::from(path))
+                let assembly: Assembly = reqwest::blocking::get(path)
+                    .map_err(|e| format!("{:?}", e))?
+                    .json()
+                    .map_err(|e| format!("{:?}", e))?;
+
+                Ok(WrappedAssembly::new(self.clone(), assembly.instructions))
             },
             AssemblySource::Code(code) => {
-                load_assembly(code)
+                Ok(WrappedAssembly::new(self.clone(), code.clone()))
             },
         }
     }

@@ -2,17 +2,28 @@ use actix_web::{web, HttpResponse, Responder};
 use serde::Deserialize;
 
 use crate::api::v1::{
-    models::project::Project,
+    models::project::{Project, WrappedProject},
     services::{
         project::ProjectService,
-        storage::{name_data, Storable}
+        storage::{name_data, NamedData, Storable}
     }
 };
 
 pub async fn get_projects() -> impl Responder {
     match ProjectService::get_all() {
         Ok(projects) => {
-            HttpResponse::Ok().json(projects)
+            println!("Successfuly obtained all projects.");
+            let wrapped_projects: Vec<NamedData<WrappedProject>> = projects.iter()
+                .map(
+                    |project|
+                    name_data(
+                        project.name.clone(),
+                        WrappedProject::from_project(project.data.clone()),
+                    )
+                )
+                .collect();
+            println!("{:?}", wrapped_projects);
+            HttpResponse::Ok().json(wrapped_projects)
         },
         Err(e) => {
             HttpResponse::InternalServerError().body(e)

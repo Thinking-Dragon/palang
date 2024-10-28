@@ -2,7 +2,10 @@ use actix_web::{web, HttpResponse, Responder};
 use serde::Deserialize;
 
 use crate::api::v1::{
-    models::assembly::AssemblySource,
+    models::{
+        assembly::AssemblySource,
+        project::WrappedProject
+    },
     services::{
         project::ProjectService,
         storage::Storable
@@ -14,7 +17,9 @@ pub async fn get_assemblies(path: web::Path<String>) -> impl Responder {
 
     match ProjectService::get(&project) {
         Ok(project) => {
-            HttpResponse::Ok().json(project.assemblies)
+            HttpResponse::Ok().json(
+                WrappedProject::from_project(project).assemblies
+            )
         },
         Err(e) => {
             HttpResponse::InternalServerError().body(e)
@@ -37,6 +42,7 @@ pub async fn create_assembly(
     match ProjectService::get(&project) {
         Ok(project_data) => {
             let mut project_data = project_data;
+
             project_data.assemblies.push(assembly);
 
             match ProjectService::set(&project, &project_data) {

@@ -4,8 +4,8 @@ use clap::{Parser, Subcommand};
 use palang_compiler::{compile_file, compile_package};
 use palang_server::api::v1::{
     models::{
-        assembly::AssemblySource,
-        project::Project
+        assembly::{AssemblySource, WrappedAssembly},
+        project::{Project, WrappedProject}
     },
     services::storage::{
         name_data,
@@ -69,8 +69,9 @@ pub fn projects_command(args: &ProjectsArgs) -> Result<(), String> {
                                 }
                             },
                             None => {
-                                let assemblies: Vec<AssemblySource> = ServerProxy::find_server()?
+                                let assemblies: Vec<WrappedAssembly> = ServerProxy::find_server()?
                                     .get_assemblies(&project)?;
+
                                 println!("{}", pretty_print_assembly_sources(&assemblies)?);
                                 Ok(())
                             },
@@ -79,14 +80,14 @@ pub fn projects_command(args: &ProjectsArgs) -> Result<(), String> {
                 }
             },
             None => {
-                let project: NamedData<Project> = ServerProxy::find_server()?.get_project(project)?;
+                let project: NamedData<WrappedProject> = ServerProxy::find_server()?.get_project(project)?;
                 println!("{}", pretty_print_project(&project)?);
                 Ok(())
             },
         }
     }
     else {
-        let projects: Vec<NamedData<Project>> = ServerProxy::find_server()?.get_projects()?;
+        let projects: Vec<NamedData<WrappedProject>> = ServerProxy::find_server()?.get_projects()?;
         println!("{}", pretty_print_projects(&projects));
         Ok(())
     }
