@@ -1,9 +1,13 @@
-use palang_server::api::v1::{
-    models::{
-        assembly::{AssemblySource, WrappedAssembly},
-        project::{Project, WrappedProject}
+use palang_core::{
+    language::assembly_source::{
+        AssemblySource,
+        WrappedAssembly
     },
-    services::storage::NamedData
+    project::{
+        Project,
+        WrappedProject
+    },
+    storage::NamedData
 };
 
 use crate::server_proxy::ServerProxy;

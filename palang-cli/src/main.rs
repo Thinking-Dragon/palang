@@ -32,7 +32,6 @@ use commands::{
         serve_command,
         ServeArgs
     },
-    status::status_command
 };
 
 #[derive(Debug, Parser)]
@@ -57,9 +56,6 @@ enum Command {
 
     #[command(about = "Disconnect from Palang server")]
     Disconnect,
-
-    #[command(about = "Print current status of server")]
-    Status,
 
     #[command(about = "Manage projects")]
     Projects(ProjectsArgs),
@@ -100,9 +96,6 @@ fn execute_command() -> Result<(), String> {
         },
         Command::Disconnect => {
             disconnect_command()
-        },
-        Command::Status => {
-            status_command()
         },
         Command::Projects(args) => {
             projects_command(&args)

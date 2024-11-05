@@ -1,4 +1,10 @@
-use palang_server::api::v1::{models::profile::{Profile, ProfileAlias}, services::storage::NamedData};
+use palang_core::{
+    profile::{
+        Profile,
+        ProfileAlias
+    },
+    storage::NamedData
+};
 
 use crate::server_proxy::ServerProxy;
 

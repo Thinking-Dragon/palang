@@ -1,10 +1,10 @@
-use super::model_settings::ModelSettings;
+use palang_core::profile::Profile;
 
 pub trait InvokableLargeLanguageModel {
     fn invoke(
         &self,
         system: &String,
         prompt: &String,
-        settings: &ModelSettings,
+        profile: &Profile,
     ) -> impl std::future::Future<Output = Result<String, String>> + Send;
 }

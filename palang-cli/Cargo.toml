@@ -19,5 +19,5 @@ path = "../palang-compiler"
 [dependencies.palang-virtual-machine]
 path = "../palang-virtual-machine"
 
-[dependencies.palang-server]
-path = "../palang-server"
+[dependencies.palang-core]
+path = "../palang-core"

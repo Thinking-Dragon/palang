@@ -2,7 +2,7 @@ use std::{fs, path::PathBuf};
 
 use clap::Parser;
 use palang_compiler::compile_file;
-use palang_server::api::v1::models::profile::load_profile_from_directory;
+use palang_core::profile::load_profile_from_directory;
 use palang_virtual_machine::{
     assembly::{
         assembly::Assembly,
@@ -51,7 +51,7 @@ pub fn run_command(args: &RunArgs) -> Result<(), String> {
                                 vm.execute(
                                     &args.task,
                                     &args.args,
-                                    &profile.get_model_settings()
+                                    &profile
                                 ).await.await
                             });
                             match result {

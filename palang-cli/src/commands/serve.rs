@@ -1,5 +1,6 @@
+use std::process::Command;
+
 use clap::Parser;
-use palang_server::{api::v1::server::ServerArgs, start_server};
 
 #[derive(Debug, Parser)]
 pub struct ServeArgs {
@@ -21,5 +22,15 @@ pub fn serve_command(args: &ServeArgs) -> Result<(), String> {
         None => 8242,
     };
 
-    start_server(&ServerArgs::new(host, port)).map_err(|e| e.to_string())
+    let server_process = Command::new("palang-server")
+        .args(&["--host", &host, "--port", &port.to_string()])
+        .spawn();
+
+    if let Ok(mut server_process) = server_process {
+        server_process.wait().map_err(|e| format!("Server crashed: {}", e.to_string()))?;
+        Ok(())
+    }
+    else {
+        Err("Could not start server, make sure the `palang-server` package is installed locally and accessible through the command line.".to_string())
+    }
 }

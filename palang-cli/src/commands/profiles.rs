@@ -1,18 +1,27 @@
 use std::path::PathBuf;
 
-use clap::{Parser, Subcommand};
-use palang_server::api::v1::{
-    models::profile::{
+use clap::{
+    Parser,
+    Subcommand
+};
+
+use palang_core::{
+    profile::{
         import_profile,
         load_profile,
         Profile,
         ProfileAlias
     },
-    services::storage::{name_data, NamedData}
+    storage::{
+        name_data,
+        NamedData
+    }
 };
 
 use crate::{
-    dialog_utils::ask, pretty_prints::profile::pretty_print_profiles, server_proxy::ServerProxy
+    dialog_utils::ask,
+    pretty_prints::profile::pretty_print_profiles,
+    server_proxy::ServerProxy
 };
 
 #[derive(Debug, Parser)]

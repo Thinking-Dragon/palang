@@ -1,7 +1,5 @@
-pub mod api;
-
 use actix_web::{web::{self, Data}, App, HttpServer};
-use api::v1::{
+use crate::api::v1::{
     routes::{
         assemblies,
         profiles,
@@ -9,17 +7,14 @@ use api::v1::{
         status,
         tasks
     },
-    server::{
-        AppState,
-        ServerArgs
-    }
+    server::AppState
 };
 
 #[actix_web::main]
-pub async fn start_server(args: &ServerArgs) -> std::io::Result<()> {
+pub async fn start_server(host: String, port: u16) -> std::io::Result<()> {
     let state: Data<AppState> = web::Data::new(AppState::new());
 
-    println!("Starting server at http://{}:{}", args.host, args.port);
+    println!("Starting server at http://{}:{}", host, port);
 
     HttpServer::new(move || {
         App::new()
@@ -38,7 +33,7 @@ pub async fn start_server(args: &ServerArgs) -> std::io::Result<()> {
                     .route("/profiles/alias", web::post().to(profiles::create_profile_alias))
             )
     })
-    .bind((args.host.clone(), args.port))?
+    .bind((host, port))?
     .run()
     .await
 }

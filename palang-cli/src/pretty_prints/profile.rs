@@ -1,5 +1,18 @@
-use palang_server::api::v1::{models::profile::Profile, services::storage::NamedData};
-use tabled::{settings::{object::Rows, themes::Colorization, Color, Style}, Table, Tabled};
+use palang_core::{
+    profile::Profile,
+    storage::NamedData
+};
+
+use tabled::{
+    settings::{
+        object::Rows,
+        themes::Colorization,
+        Color,
+        Style
+    },
+    Table,
+    Tabled
+};
 
 pub fn pretty_print_profiles(
     profiles: &Vec<NamedData<Profile>>,

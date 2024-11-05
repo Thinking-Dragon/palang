@@ -1,13 +1,25 @@
 use std::fs;
 
-use clap::{Parser, Subcommand};
-use palang_compiler::{compile_file, compile_package};
-use palang_server::api::v1::{
-    models::{
-        assembly::{AssemblySource, WrappedAssembly},
-        project::{Project, WrappedProject}
+use clap::{
+    Parser,
+    Subcommand
+};
+
+use palang_compiler::{
+    compile_file,
+    compile_package
+};
+
+use palang_core::{
+    language::assembly_source::{
+        AssemblySource,
+        WrappedAssembly
     },
-    services::storage::{
+    project::{
+        Project,
+        WrappedProject
+    },
+    storage::{
         name_data,
         NamedData
     }
