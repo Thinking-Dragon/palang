@@ -28,9 +28,9 @@ use commands::{
         run_command,
         RunArgs
     },
-    serve::{
-        serve_command,
-        ServeArgs
+    start::{
+        start_command,
+        StartCommandArgs
     },
 };
 
@@ -48,8 +48,8 @@ enum Command {
     #[command(about = "Run a compiled program")]
     Run(RunArgs),
 
-    #[command(about = "Start a Palang server")]
-    Serve(ServeArgs),
+    #[command(about = "Start a Palang server or registry")]
+    Start(StartCommandArgs),
 
     #[command(about = "Connect to a Palang server")]
     Connect(ConnectArgs),
@@ -88,8 +88,8 @@ fn execute_command() -> Result<(), String> {
         Command::Run(args) => {
             run_command(&args)
         },
-        Command::Serve(args) => {
-            serve_command(&args)
+        Command::Start(args) => {
+            start_command(&args)
         },
         Command::Connect(args) => {
             connect_command(&args)
