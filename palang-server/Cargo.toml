@@ -12,5 +12,8 @@ serde = { version = "1.0.209", features = ["derive"] }
 serde_yaml = "0.9.34"
 tabled = "0.16.0"
 
+[dependencies.palang-core]
+path = "../palang-core"
+
 [dependencies.palang-virtual-machine]
 path = "../palang-virtual-machine"

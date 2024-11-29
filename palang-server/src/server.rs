@@ -4,7 +4,6 @@ use crate::api::v1::{
         assemblies,
         profiles,
         projects,
-        status,
         tasks
     },
     server::AppState
@@ -22,7 +21,6 @@ pub async fn start_server(host: String, port: u16) -> std::io::Result<()> {
             .service(
                 web::scope("/api/v1")
                     .route("/run/{task:.*}", web::post().to(tasks::run_task))
-                    .route("/status", web::get().to(status::get_status))
                     .route("/projects", web::get().to(projects::get_projects))
                     .route("/projects", web::post().to(projects::create_project))
                     .route("/projects/{project}", web::get().to(projects::get_project))

@@ -1,7 +1,17 @@
-use actix_web::{web, HttpResponse, Responder};
+use actix_web::{
+    web,
+    HttpResponse,
+    Responder
+};
+
+use palang_core::{
+    profile::Profile,
+    storage::Storable
+};
+
 use serde::Deserialize;
 
-use crate::api::v1::{models::profile::Profile, services::{profile::ProfileService, storage::Storable}};
+use crate::api::v1::services::profile::ProfileService;
 
 pub async fn get_profiles() -> impl Responder {
     match ProfileService::get_all() {

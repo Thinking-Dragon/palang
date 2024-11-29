@@ -1,16 +1,18 @@
-use actix_web::{web, HttpResponse, Responder};
+use actix_web::{
+    web,
+    HttpResponse,
+    Responder
+};
+
+use palang_core::{
+    language::assembly_source::AssemblySource,
+    project::WrappedProject,
+    storage::Storable
+};
+
 use serde::Deserialize;
 
-use crate::api::v1::{
-    models::{
-        assembly::AssemblySource,
-        project::WrappedProject
-    },
-    services::{
-        project::ProjectService,
-        storage::Storable
-    }
-};
+use crate::api::v1::services::project::ProjectService;
 
 pub async fn get_assemblies(path: web::Path<String>) -> impl Responder {
     let project: String = path.into_inner();
@@ -39,6 +41,8 @@ pub async fn create_assembly(
     let project: String = path.into_inner();
     let CreateAssemblyRequest { assembly } = request.into_inner();
 
+    println!("{} : {:#?}", project, assembly);
+    
     match ProjectService::get(&project) {
         Ok(project_data) => {
             let mut project_data = project_data;

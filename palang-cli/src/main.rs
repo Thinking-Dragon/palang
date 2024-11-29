@@ -1,3 +1,4 @@
+mod assembly_utils;
 mod dialog_utils;
 mod assembly_path_util;
 mod pretty_prints;
@@ -5,33 +6,38 @@ mod pretty_prints;
 mod commands;
 mod server_proxy;
 
-use clap::{Parser, Subcommand};
+use clap::{
+    Parser,
+    Subcommand
+};
+
 use commands::{
     compile::{
         compile_command,
         CompileArgs
-    },
-    connect::{
+    }, connect::{
         connect_command,
         ConnectArgs
-    },
-    disconnect::disconnect_command,
-    profiles::{
+    }, describe::{describe_command, DescribeArgs}, disconnect::disconnect_command, profiles::{
         profiles_command,
         ProfilesArgs
-    },
-    projects::{
-        projects_command,
-        ProjectsArgs
-    },
-    run::{
+    }, projects::{
+        get::{
+            project_command,
+            ProjectArgs
+        },
+        get_all::projects_command,
+        new::{
+            new_project_command,
+            NewProjectArgs
+        }
+    }, run::{
         run_command,
         RunArgs
-    },
-    start::{
+    }, start::{
         start_command,
         StartCommandArgs
-    },
+    }
 };
 
 #[derive(Debug, Parser)]
@@ -48,6 +54,9 @@ enum Command {
     #[command(about = "Run a compiled program")]
     Run(RunArgs),
 
+    #[command(about = "Describe a program's contents")]
+    Describe(DescribeArgs),
+
     #[command(about = "Start a Palang server or registry")]
     Start(StartCommandArgs),
 
@@ -57,8 +66,14 @@ enum Command {
     #[command(about = "Disconnect from Palang server")]
     Disconnect,
 
-    #[command(about = "Manage projects")]
-    Projects(ProjectsArgs),
+    #[command(about = "List all projects")]
+    Projects,
+
+    #[command(about = "Manage a project")]
+    Project(ProjectArgs),
+
+    #[command(about = "Create a new project")]
+    NewProject(NewProjectArgs),
 
     #[command(about = "Manage profiles")]
     Profiles(ProfilesArgs),
@@ -88,6 +103,9 @@ fn execute_command() -> Result<(), String> {
         Command::Run(args) => {
             run_command(&args)
         },
+        Command::Describe(args) => {
+            describe_command(&args)
+        },
         Command::Start(args) => {
             start_command(&args)
         },
@@ -97,8 +115,14 @@ fn execute_command() -> Result<(), String> {
         Command::Disconnect => {
             disconnect_command()
         },
-        Command::Projects(args) => {
-            projects_command(&args)
+        Command::Projects => {
+            projects_command()
+        },
+        Command::NewProject(args) => {
+            new_project_command(&args)
+        },
+        Command::Project(args) => {
+            project_command(&args)
         },
         Command::Profiles(args) => {
             profiles_command(&args)

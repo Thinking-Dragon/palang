@@ -1,6 +1,13 @@
-use crate::api::v1::models::project::Project;
-
-use super::storage::{load, load_all, store, NamedData, Storable};
+use palang_core::{
+    project::Project,
+    storage::{
+        load,
+        load_all,
+        store,
+        NamedData,
+        Storable
+    }
+};
 
 pub struct ProjectService;
 

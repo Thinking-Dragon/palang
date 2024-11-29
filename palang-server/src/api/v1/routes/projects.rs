@@ -1,13 +1,24 @@
-use actix_web::{web, HttpResponse, Responder};
-use serde::Deserialize;
+use actix_web::{
+    web,
+    HttpResponse,
+    Responder
+};
 
-use crate::api::v1::{
-    models::project::{Project, WrappedProject},
-    services::{
-        project::ProjectService,
-        storage::{name_data, NamedData, Storable}
+use palang_core::{
+    project::{
+        Project,
+        WrappedProject
+    },
+    storage::{
+        name_data,
+        NamedData,
+        Storable
     }
 };
+
+use serde::Deserialize;
+
+use crate::api::v1::services::project::ProjectService;
 
 pub async fn get_projects() -> impl Responder {
     match ProjectService::get_all() {

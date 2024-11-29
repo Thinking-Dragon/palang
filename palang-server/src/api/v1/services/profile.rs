@@ -1,6 +1,13 @@
-use crate::api::v1::models::profile::Profile;
-
-use super::storage::{load, load_all, store, NamedData, Storable};
+use palang_core::{
+    profile::Profile,
+    storage::{
+        load,
+        load_all,
+        store,
+        NamedData,
+        Storable
+    }
+};
 
 pub struct ProfileService;
 
