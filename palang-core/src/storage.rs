@@ -1,4 +1,4 @@
-use std::{env, fs::{self, DirEntry}, path::PathBuf};
+use std::{fs::{self, DirEntry}, path::PathBuf};
 
 use serde::{de::DeserializeOwned, Deserialize, Serialize};
 
@@ -13,13 +13,16 @@ pub fn load<T>(name: &String, collection: &str) -> Result<T, String>
 {
     let file_name_with_extension: String = format!("{}.yaml", name);
 
-    let directory: PathBuf = (
-        if let Ok(snap_user_data) = env::var("SNAP_USER_DATA") {
-            PathBuf::from(snap_user_data)
+    let directory: PathBuf = {
+        let home_dir = dirs::home_dir().unwrap_or_else(|| PathBuf::from("."));
+        let snap_palang_dir = home_dir.join("snap").join("palang");
+        
+        if snap_palang_dir.exists() && snap_palang_dir.is_dir() {
+            snap_palang_dir.join("common")
         } else {
-            dirs::home_dir().unwrap_or_else(|| PathBuf::from(".")).join(".palang")
+            home_dir.join(".palang")
         }
-    ).join(collection);
+    }.join(collection);
 
     let file_path: PathBuf = directory.join(file_name_with_extension);
     load_file(&file_path)
@@ -28,13 +31,16 @@ pub fn load<T>(name: &String, collection: &str) -> Result<T, String>
 pub fn load_all<T>(collection: &str) -> Result<Vec<NamedData<T>>, String>
     where T: DeserializeOwned,
 {
-    let directory: PathBuf = (
-        if let Ok(snap_user_data) = env::var("SNAP_USER_DATA") {
-            PathBuf::from(snap_user_data)
+    let directory: PathBuf = {
+        let home_dir = dirs::home_dir().unwrap_or_else(|| PathBuf::from("."));
+        let snap_palang_dir = home_dir.join("snap").join("palang");
+
+        if snap_palang_dir.exists() && snap_palang_dir.is_dir() {
+            snap_palang_dir.join("common")
         } else {
-            dirs::home_dir().unwrap_or_else(|| PathBuf::from(".")).join(".palang")
+            home_dir.join(".palang")
         }
-    ).join(collection);
+    }.join(collection);
 
     if !directory.exists() {
         return Ok(Vec::new());
@@ -69,13 +75,16 @@ pub fn store<T>(name: &String, collection: &str, data: &T) -> Result<(), String>
 {
     let file_name_with_extension: String = format!("{}.yaml", name);
 
-    let directory: PathBuf = (
-        if let Ok(snap_user_data) = env::var("SNAP_USER_DATA") {
-            PathBuf::from(snap_user_data)
+    let directory: PathBuf = {
+        let home_dir = dirs::home_dir().unwrap_or_else(|| PathBuf::from("."));
+        let snap_palang_dir = home_dir.join("snap").join("palang");
+        
+        if snap_palang_dir.exists() && snap_palang_dir.is_dir() {
+            snap_palang_dir.join("common")
         } else {
-            dirs::home_dir().unwrap_or_else(|| PathBuf::from(".")).join(".palang")
+            home_dir.join(".palang")
         }
-    ).join(collection);
+    }.join(collection);
 
     fs::create_dir_all(&directory)
         .map_err(|e| e.to_string())?;

@@ -9,8 +9,8 @@ pub enum LargeLanguageModel {
 }
 
 impl LargeLanguageModel {
-    pub fn new_groq(authorization_token: &String) -> Self {
-        LargeLanguageModel::Groq(GroqLargeLanguageModel::new(authorization_token))
+    pub fn new_groq() -> Self {
+        LargeLanguageModel::Groq(GroqLargeLanguageModel::new())
     }
 
     pub fn new_ollama(base_url: &String) -> Self {

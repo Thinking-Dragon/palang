@@ -1,4 +1,4 @@
-use palang_core::{
+use crate::{
     profile::Profile,
     storage::{
         load,

@@ -18,9 +18,7 @@ pub fn load_assembly_file(file: &PathBuf) -> Result<Assembly, String> {
 pub fn choose_llm(llm: &String) -> Result<LargeLanguageModel, String> {
     match llm.to_lowercase().as_str() {
         "groq" => {
-            let authorization_token: String = std::env::var("GROQ_AUTHORIZATION_TOKEN")
-                                                       .map_err(|e| e.to_string())?;
-            Ok(LargeLanguageModel::new_groq(&authorization_token))
+            Ok(LargeLanguageModel::new_groq())
         },
         "ollama" => {
             let base_url: String = std::env::var("OLLAMA_BASE_URL")

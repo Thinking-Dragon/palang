@@ -12,9 +12,19 @@ base: core22
 confinement: devmode
 
 parts:
+  rust-deps:
+    plugin: nil
+    build-packages:
+      - curl
+    override-pull: |
+      curl --proto '=https' --tlsv1.2 -sSf https://sh.rustup.rs | sh -s -- -y
   palang:
     plugin: rust
+    build-packages:
+      - libssl-dev
+      - pkg-config
     source: .
+    after: [rust-deps]
     rust-path: ["palang-cli"]
 
 apps:

@@ -7,12 +7,11 @@ use actix_web::{
 use palang_core::{
     language::assembly_source::AssemblySource,
     project::WrappedProject,
+    services::project::ProjectService,
     storage::Storable
 };
 
 use serde::Deserialize;
-
-use crate::api::v1::services::project::ProjectService;
 
 pub async fn get_assemblies(path: web::Path<String>) -> impl Responder {
     let project: String = path.into_inner();

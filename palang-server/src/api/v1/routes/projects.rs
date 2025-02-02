@@ -9,6 +9,7 @@ use palang_core::{
         Project,
         WrappedProject
     },
+    services::project::ProjectService,
     storage::{
         name_data,
         NamedData,
@@ -17,8 +18,6 @@ use palang_core::{
 };
 
 use serde::Deserialize;
-
-use crate::api::v1::services::project::ProjectService;
 
 pub async fn get_projects() -> impl Responder {
     match ProjectService::get_all() {
