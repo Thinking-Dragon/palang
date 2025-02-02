@@ -6,12 +6,11 @@ use actix_web::{
 
 use palang_core::{
     profile::Profile,
+    services::profile::ProfileService,
     storage::Storable
 };
 
 use serde::Deserialize;
-
-use crate::api::v1::services::profile::ProfileService;
 
 pub async fn get_profiles() -> impl Responder {
     match ProfileService::get_all() {

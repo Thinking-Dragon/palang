@@ -11,10 +11,9 @@ use palang_core::{
         load_profile,
         Profile,
         ProfileAlias
-    },
-    storage::{
+    }, services::profile::ProfileService, storage::{
         name_data,
-        NamedData
+        NamedData, Storable
     }
 };
 
@@ -28,6 +27,9 @@ use crate::{
 pub struct ProfilesArgs {
     #[command(subcommand)]
     command: Option<ProfilesCommand>,
+
+    #[clap(long, action)]
+    json: bool,
 }
 
 #[derive(Debug, Subcommand)]
@@ -65,8 +67,21 @@ pub fn profiles_command(args: &ProfilesArgs) -> Result<(), String> {
             }
         },
         None => {
-            let profiles: Vec<NamedData<Profile>> = ServerProxy::find_server()?.get_profiles()?;
-            println!("{}", pretty_print_profiles(&profiles));
+            let profiles: Vec<NamedData<Profile>> = if ServerProxy::is_connected() {
+                ServerProxy::find_server()?.get_profiles()
+            }
+            else {
+                ProfileService::get_all()
+            }?;
+
+            if args.json {
+                let json_formatted = serde_json::to_string_pretty(&profiles).map_err(|e| e.to_string())?;
+                println!("{}", json_formatted);
+            }
+            else {
+                println!("{}", pretty_print_profiles(&profiles));
+            }
+
             Ok(())
         },
     }
@@ -98,6 +113,11 @@ fn new_profile_dialog(name: &String) -> Result<(), String> {
     let model:           String = ask("Which model you want to use")?;
     let mut temperature: String = ask("Temperature [0.7]")?;
     let mut max_tokens:  String = ask("Maximum number of tokens [1024]")?;
+    let mut api_key: Option<String> = None;
+
+    if ask("Do you have an API key for this provider? [Y/N]")?.to_uppercase() == "Y" {
+        api_key = Some(ask("Enter your API key")?);
+    }
 
     if temperature.is_empty() {
         temperature = "0.7".to_string();
@@ -114,6 +134,7 @@ fn new_profile_dialog(name: &String) -> Result<(), String> {
         model,
         temperature_float,
         max_tokens_int,
+        api_key,
     );
 
     if ServerProxy::is_connected() {
