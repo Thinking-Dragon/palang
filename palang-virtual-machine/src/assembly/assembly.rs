@@ -1,8 +1,14 @@
 use std::collections::HashMap;
 
-use super::{function::Function, model::Model, prompt::Prompt};
+use serde::Serialize;
 
-#[derive(Debug, Clone)]
+use super::{
+    function::Function,
+    model::Model,
+    prompt::Prompt
+};
+
+#[derive(Debug, Clone, Serialize)]
 pub struct Assembly {
     pub name: String,
     pub models: HashMap<String, Model>,

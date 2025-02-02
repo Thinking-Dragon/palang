@@ -1,5 +1,7 @@
 use std::{future::Future, pin::Pin};
 
+use palang_core::profile::Profile;
+
 use crate::{
     assembly::{
         assemblies_cache::AssembliesCache,
@@ -8,7 +10,7 @@ use crate::{
         prompt::Prompt,
         task::Task
     },
-    llm::{llm::LargeLanguageModel, model_settings::ModelSettings}
+    llm::llm::LargeLanguageModel
 };
 
 use super::function_runner::run_function;
@@ -34,17 +36,17 @@ impl VirtualMachine {
         &'a mut self,
         task: &'a String,
         parameters: &'a Vec<String>,
-        settings: &'a ModelSettings,
+        profile: &'a Profile,
     ) -> Pin<Box<dyn Future<Output = Result<String, String>> + 'a>> {
         Box::pin(async move {
             match self.assemblies.get_task(task) {
                 Some(task) => {
                     match task {
                         Task::Prompt(prompt) => {
-                            return self.execute_prompt(&prompt, parameters, settings).await;
+                            return self.execute_prompt(&prompt, parameters, profile).await;
                         },
                         Task::Function(function) => {
-                            return self.execute_function(&function, parameters, settings).await;
+                            return self.execute_function(&function, parameters, profile).await;
                         },
                     }
                 },
@@ -59,7 +61,7 @@ impl VirtualMachine {
         &mut self,
         prompt: &Prompt,
         parameters: &Vec<String>,
-        settings: &ModelSettings,
+        profile: &Profile,
     ) -> Result<String, String> {
         let system: String = "
             You will reply with the wanted response only and nothing else.
@@ -85,15 +87,15 @@ impl VirtualMachine {
         let return_type_model: String = self.assemblies.get_model(&prompt.return_type).unwrap().text.clone();
         instructions += &format!("Your response will be formatted as follows: {}", return_type_model);
 
-        self.llm.invoke(&system, &instructions, &settings).await
+        self.llm.invoke(&system, &instructions, &profile).await
     }
 
     async fn execute_function(
         &mut self,
         function: &Function,
         parameters: &Vec<String>,
-        model_settings: &ModelSettings,
+        profile: &Profile,
     ) -> Result<String, String> {
-        run_function(function, parameters, model_settings, self).await
+        run_function(function, parameters, profile, self).await
     }
 }

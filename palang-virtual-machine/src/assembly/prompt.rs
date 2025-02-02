@@ -1,6 +1,8 @@
+use serde::Serialize;
+
 use super::parameter::Parameter;
 
-#[derive(Debug, Clone)]
+#[derive(Debug, Clone, Serialize)]
 pub struct Prompt {
     pub name: String,
     pub parameters: Vec<Parameter>,

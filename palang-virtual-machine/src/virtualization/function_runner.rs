@@ -1,17 +1,19 @@
 use std::collections::HashMap;
 
-use crate::{assembly::{function::Function, instruction::Instruction}, llm::model_settings::ModelSettings};
+use palang_core::profile::Profile;
+
+use crate::assembly::{function::Function, instruction::Instruction};
 
 use super::virtual_machine::VirtualMachine;
 
 pub async fn run_function<'a>(
     function_info: &'a Function,
     parameters: &Vec<String>,
-    model_settings: &ModelSettings,
+    profile: &Profile,
     vm: &'a mut VirtualMachine,
 ) -> Result<String, String> {
     let mut runner: FunctionRunner = FunctionRunner {
-        model_settings,
+        profile,
         vm,
         function_info,
         variables: HashMap::new(),
@@ -43,7 +45,7 @@ fn load_parameters_into_variables(
 }
 
 pub struct FunctionRunner<'a> {
-    model_settings: &'a ModelSettings,
+    profile: &'a Profile,
     vm: &'a mut VirtualMachine,
     function_info: &'a Function,
     variables: HashMap<String, String>,
@@ -95,7 +97,7 @@ impl<'a> FunctionRunner<'a> {
                         self.invocation_registry = match self.vm.execute(
                             task,
                             &argument_values,
-                            &self.model_settings,
+                            &self.profile,
                         ).await.await {
                             Ok(value) => Some(value.clone()),
                             Err(_) => None,

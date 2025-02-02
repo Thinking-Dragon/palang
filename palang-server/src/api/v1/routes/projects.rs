@@ -1,0 +1,79 @@
+use actix_web::{
+    web,
+    HttpResponse,
+    Responder
+};
+
+use palang_core::{
+    project::{
+        Project,
+        WrappedProject
+    },
+    storage::{
+        name_data,
+        NamedData,
+        Storable
+    }
+};
+
+use serde::Deserialize;
+
+use crate::api::v1::services::project::ProjectService;
+
+pub async fn get_projects() -> impl Responder {
+    match ProjectService::get_all() {
+        Ok(projects) => {
+            println!("Successfuly obtained all projects.");
+            let wrapped_projects: Vec<NamedData<WrappedProject>> = projects.iter()
+                .map(
+                    |project|
+                    name_data(
+                        project.name.clone(),
+                        WrappedProject::from_project(project.data.clone()),
+                    )
+                )
+                .collect();
+            println!("{:?}", wrapped_projects);
+            HttpResponse::Ok().json(wrapped_projects)
+        },
+        Err(e) => {
+            HttpResponse::InternalServerError().body(e)
+        },
+    }
+}
+
+pub async fn get_project(path: web::Path<String>) -> impl Responder {
+    let project: String = path.into_inner();
+
+    match ProjectService::get(&project) {
+        Ok(project_data) => {
+            HttpResponse::Ok().json(name_data(project, project_data))
+        },
+        Err(e) => {
+            HttpResponse::InternalServerError().body(e)
+        },
+    }
+}
+
+#[derive(Deserialize)]
+pub struct CreateProjectRequest {
+    name: String,
+
+    #[serde(flatten)]
+    data: Project,
+}
+
+pub async fn create_project(
+    request: web::Json<CreateProjectRequest>
+) -> impl Responder {
+    let CreateProjectRequest { name, data } = request.into_inner();
+
+    match ProjectService::set(&name, &data) {
+        Ok(()) => {
+            HttpResponse::Ok().finish()
+        },
+        Err(e) => {
+            HttpResponse::InternalServerError().body(e)
+        },
+    }
+}

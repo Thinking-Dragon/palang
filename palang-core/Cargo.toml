@@ -1,0 +1,11 @@
+[package]
+name = "palang-core"
+version = "0.1.0"
+edition = "2021"
+
+[dependencies]
+dirs = "5.0.1"
+reqwest = { version = "0.12.7", features = ["blocking", "json"] }
+serde = { version = "1.0.210", features = ["derive"] }
+serde_yaml = "0.9.34"
+tabled = "0.16.0"

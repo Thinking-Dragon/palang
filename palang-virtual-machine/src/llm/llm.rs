@@ -1,4 +1,6 @@
-use super::{groq_llm::GroqLargeLanguageModel, invokable_llm::InvokableLargeLanguageModel, model_settings::ModelSettings, ollama_llm::OllamaLargeLanguageModel};
+use palang_core::profile::Profile;
+
+use super::{groq_llm::GroqLargeLanguageModel, invokable_llm::InvokableLargeLanguageModel, ollama_llm::OllamaLargeLanguageModel};
 
 #[derive(Clone)]
 pub enum LargeLanguageModel {
@@ -19,11 +21,11 @@ impl LargeLanguageModel {
         &self,
         system: &String,
         prompt: &String,
-        settings: &ModelSettings,
+        profile: &Profile,
     ) -> Result<String, String> {
         match self {
-            LargeLanguageModel::Groq(llm) => llm.invoke(system, prompt, settings).await,
-            LargeLanguageModel::Ollama(llm) => llm.invoke(system, prompt, settings).await,
+            LargeLanguageModel::Groq(llm) => llm.invoke(system, prompt, profile).await,
+            LargeLanguageModel::Ollama(llm) => llm.invoke(system, prompt, profile).await,
         }
     }
 }

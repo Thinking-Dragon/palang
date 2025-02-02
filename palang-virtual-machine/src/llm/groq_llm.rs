@@ -1,7 +1,8 @@
+use palang_core::profile::Profile;
 use reqwest::{header::{HeaderMap, HeaderValue, AUTHORIZATION, CONTENT_TYPE}, Client};
 use serde_json::{json, Value};
 
-use super::{invokable_llm::InvokableLargeLanguageModel, model_settings::ModelSettings};
+use super::invokable_llm::InvokableLargeLanguageModel;
 
 #[derive(Clone)]
 pub struct GroqLargeLanguageModel {
@@ -14,7 +15,7 @@ impl InvokableLargeLanguageModel for GroqLargeLanguageModel {
         &self,
         system: &String,
         prompt: &String,
-        settings: &ModelSettings,
+        profile: &Profile,
     ) -> Result<String, String> {
         let body = json!({
             "messages": [
@@ -27,9 +28,9 @@ impl InvokableLargeLanguageModel for GroqLargeLanguageModel {
                     "content": prompt,
                 }
             ],
-            "model": settings.model,
-            "temperature": settings.temperature,
-            "max_tokens": settings.max_tokens,
+            "model": profile.model,
+            "temperature": profile.temperature,
+            "max_tokens": profile.max_tokens,
             "top_p": 1,
             "stream": false,
             "stop": null,

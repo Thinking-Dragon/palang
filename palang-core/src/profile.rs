@@ -1,6 +1,5 @@
 use std::{env, fs, path::PathBuf};
 
-use palang_virtual_machine::llm::model_settings::ModelSettings;
 use serde::{Deserialize, Serialize};
 use tabled::Tabled;
 
@@ -20,14 +19,6 @@ impl Profile {
         max_tokens: u32,
     ) -> Self {
         Profile { llm, model, temperature, max_tokens }
-    }
-
-    pub fn get_model_settings(&self) -> ModelSettings {
-        ModelSettings {
-            model: self.model.clone(),
-            temperature: self.temperature,
-            max_tokens: self.max_tokens,
-        }
     }
 }
 
@@ -79,7 +70,7 @@ pub fn import_profile(name: &String, profile: &Profile) -> Result<(), String> {
     write_profile(&file_path, profile)
 }
 
-#[derive(Deserialize, Serialize)]
+#[derive(Debug, Deserialize, Serialize)]
 pub struct ProfileAlias {
     pub name: String,
     pub r#for: String,
