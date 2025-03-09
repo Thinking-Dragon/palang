@@ -125,19 +125,6 @@ export class AssembliesComponent extends Component {
 
 }
 
-// async function describeAssemblies() {
-//     const files = await vscode.workspace.findFiles('**/*', '**/node_modules/**');
-//     let fileDescriptions = [];
-
-//     for (const file of files) {
-//         let description = JSON.parse(execSync(`palang describe ${file.path} --json`).toString().trim());
-//         description.sourceFile = file.path;
-//         fileDescriptions.push(description);
-//     }
-
-//     return fileDescriptions;
-// }
-
 function describeAssembliesSync(): any[] {
     const workspaceFolders = vscode.workspace.workspaceFolders;
 
@@ -148,16 +135,12 @@ function describeAssembliesSync(): any[] {
 
     let fileDescriptions: any[] = [];
 
-    // Traverse each workspace folder
     workspaceFolders.forEach(folder => {
         const folderPath = folder.uri.fsPath;
-
-        // Recursively find files in the folder, excluding node_modules
         const files = findFilesSync(folderPath, '**/node_modules/**');
 
         files.forEach(file => {
             try {
-                // Execute the command synchronously and parse the output
                 const commandOutput = execSync(`palang describe ${file} --json`).toString().trim();
                 let description = JSON.parse(commandOutput);
                 description.sourceFile = file;
@@ -180,7 +163,6 @@ function findFilesSync(dir: string, excludePattern: string): string[] {
         const stat = fs.statSync(fullPath);
 
         if (stat.isDirectory()) {
-            // Skip excluded directories like node_modules
             if (!fullPath.includes(excludePattern)) {
                 results = results.concat(findFilesSync(fullPath, excludePattern));
             }
