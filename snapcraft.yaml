@@ -9,7 +9,7 @@ description: |
   The Palang interpretor is provided both as a standalone executable and as a server called the open-prompt-palette server.
 
 base: core22
-confinement: devmode
+confinement: classic
 
 parts:
   rust-deps:
