@@ -1,0 +1,47 @@
+[package]
+name = "palang"
+version = "0.1.0"
+edition = "2021"
+
+[dependencies]
+clap = { version = "4.5.16", features = ["derive"] }
+dirs = "5.0.1"
+reqwest = { version = "0.12.7", features = ["blocking"] }
+serde = { version = "1.0.209", features = ["derive"] }
+serde_json = "1.0.127"
+serde_yaml = "0.9.34"
+tabled = "0.16.0"
+tokio = { version = "1.39.3", features = ["full"] }
+
+[dependencies.palang-compiler]
+path = "../compiler"
+
+[dependencies.palang-virtual-machine]
+path = "../virtual-machine"
+
+[dependencies.palang-core]
+path = "../core"
+
+[package.metadata.bundle]
+name = "palang"
+version = "1.0.0"
+copyright = "MIT"
+short_description = "CLI for the Palang programming language"
+long_description = """
+Command Line Interface for the Palang programming language.
+Main features:
+ - Compile Palang programs ;
+ - Run Palang programs ;
+ - Manage Palang profiles ;
+ - Manage Palang server ;
+ - Manage Palang registry.
+"""
+
+#[package.metadata.deb]
+#maintainer = "Clément Gassmann-Prince <clementgassmannprince@gmail.com>"
+#copyright = "2025, Clément Gassmann-Prince"
+#license-file = ["../LICENSE"]
+#assets = [
+#  ["target/release/palang", "usr/bin/", "755"]
+#]
+
