@@ -1,0 +1,10 @@
+[workspace]
+resolver = "3"
+
+members = [
+    "cli",
+    "compiler",
+    "core",
+    "server",
+    "virtual-machine"
+]
