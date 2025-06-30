@@ -2,7 +2,7 @@ use palang_core::profile::Profile;
 
 use super::{groq_llm::GroqLargeLanguageModel, invokable_llm::InvokableLargeLanguageModel, ollama_llm::OllamaLargeLanguageModel};
 
-#[derive(Clone)]
+#[derive(Debug, Clone)]
 pub enum LargeLanguageModel {
     Groq(GroqLargeLanguageModel),
     Ollama(OllamaLargeLanguageModel),

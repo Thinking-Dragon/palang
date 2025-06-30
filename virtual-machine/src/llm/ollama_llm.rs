@@ -4,7 +4,7 @@ use serde_json::{json, Value};
 
 use super::invokable_llm::InvokableLargeLanguageModel;
 
-#[derive(Clone)]
+#[derive(Debug, Clone)]
 pub struct OllamaLargeLanguageModel {
     client: Client,
     base_url: String,

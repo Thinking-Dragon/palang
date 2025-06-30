@@ -11,6 +11,7 @@ use crate::{
 
 use super::function_runner::run_function;
 
+#[derive(Debug, Clone)]
 pub struct VirtualMachine {
     assemblies: AssembliesCache,
     llm: LargeLanguageModel,

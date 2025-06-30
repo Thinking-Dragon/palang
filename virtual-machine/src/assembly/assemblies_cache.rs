@@ -2,6 +2,7 @@ use std::collections::HashMap;
 
 use super::{assembly::Assembly, model::Model, task::Task};
 
+#[derive(Debug, Clone)]
 pub struct AssembliesCache {
     assemblies: HashMap<String, Assembly>,
     models_index: HashMap<String, String>,
