@@ -5,6 +5,7 @@ members = [
     "cli",
     "compiler",
     "core",
+    "py-palang",
     "server",
     "virtual-machine"
 ]
