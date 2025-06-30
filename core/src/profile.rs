@@ -3,7 +3,7 @@ use std::{fs, path::PathBuf};
 use serde::{Deserialize, Serialize};
 use tabled::Tabled;
 
-#[derive(Debug, Serialize, Deserialize, Tabled)]
+#[derive(Debug, Clone, Serialize, Deserialize, Tabled)]
 pub struct Profile {
     pub llm: String,
     pub model: String,
